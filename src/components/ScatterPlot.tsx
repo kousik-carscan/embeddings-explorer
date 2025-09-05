@@ -181,5 +181,86 @@ export default function ScatterPlot({
     };
   }, [positions, scheme, colorMode, pointSize, scale, tx, ty, onHover, onSelect]);
 
-  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0 }} />;
+  // return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0 }} />;
+  return (
+    <div style={{ position: 'absolute', inset: 0 }}>
+      <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0 }} />
+  
+      {/* Legend overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 12,
+          bottom: 12,
+          background: 'rgba(20,20,20,0.85)',
+          padding: '8px 12px',
+          borderRadius: 8,
+          fontSize: 12,
+          color: '#eee',
+        }}
+      >
+        {colorMode === 'score' ? (
+          <div style={{ width: 120 }}>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>Score</div>
+            <div
+              style={{
+                height: 12,
+                background:
+                  'linear-gradient(to right, rgb(66,135,245), rgb(255,165,0))',
+                borderRadius: 4,
+                marginBottom: 4,
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Low</span>
+              <span>High</span>
+            </div>
+          </div>
+        ) : (
+          <div style={{ maxWidth: 200 }}>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>Cluster labels</div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))',
+                gap: 4,
+              }}
+            >
+              {/* show up to 12 categories for legend */}
+              {positions.slice(0, 1).map((p) =>
+                Object.keys(p.cluster_labels ?? {}).includes(scheme)
+                  ? [...new Set(positions.map((pp) => pp.cluster_labels?.[scheme]))]
+                      .slice(0, 12)
+                      .map((lab) => {
+                        const [r, g, b] = labelToColor(lab ?? -1);
+                        return (
+                          <div
+                            key={lab}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 4,
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: 12,
+                                height: 12,
+                                borderRadius: '50%',
+                                background: `rgb(${r},${g},${b})`,
+                              }}
+                            />
+                            <span>{lab}</span>
+                          </div>
+                        );
+                      })
+                  : null
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+  
 }
