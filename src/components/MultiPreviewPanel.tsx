@@ -17,8 +17,8 @@ function getPreviewSrc(item: PositionItem | null): string | null {
   if (!item) return null;
   const p = item.metadata?.image_path || '';
   if (p && /^https?:\/\//i.test(p)) return p;
-  // return '/annotation-images/1.jpeg';
-  return p;
+  return '/annotation-images/1.jpeg';
+  // return p;
 }
 
 function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null }) {

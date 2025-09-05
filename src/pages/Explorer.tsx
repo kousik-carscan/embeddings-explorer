@@ -47,25 +47,48 @@ export default function Explorer() {
   }, [clusterKeys.join('|')]);
 
   // handle click selection from ScatterPlot
-  const handleSelect = (idx: number | null, opts?: { append?: boolean; range?: boolean }) => {
-    const append = !!opts?.append;
-    if (idx == null) {
-      if (!append) setSelectedIdx([]); // clear on empty click (unless append)
-      return;
-    }
-    if (!append) {
-      setSelectedIdx([idx]);
-      return;
-    }
-    // toggle
-    setSelectedIdx(prev => {
-      if (prev.includes(idx)) return prev.filter(i => i !== idx);
-      return [...prev, idx];
-    });
-  };
+  // const handleSelect = (idx: number | null, opts?: { append?: boolean; range?: boolean }) => {
+  //   const append = !!opts?.append;
+  //   if (idx == null) {
+  //     if (!append) setSelectedIdx([]); // clear on empty click (unless append)
+  //     return;
+  //   }
+  //   if (!append) {
+  //     setSelectedIdx([idx]);
+  //     return;
+  //   }
+  //   // toggle
+  //   setSelectedIdx(prev => {
+  //     if (prev.includes(idx)) return prev.filter(i => i !== idx);
+  //     return [...prev, idx];
+  //   });
+  // };
 
-  const selectedItems = useMemo(() => selectedIdx.map(i => filteredPositions[i]).filter(Boolean), [selectedIdx, filteredPositions]);
+  // handle click selection from ScatterPlot
+const handleSelect = (idx: number | null, opts?: { append?: boolean; range?: boolean }) => {
+  const append = !!opts?.append;
+  if (idx == null) {
+    if (!append) setSelectedIdx([]); // clear on empty click (unless append)
+    return;
+  }
+  if (!append) {
+    setSelectedIdx([idx]); // replace selection
+    return;
+  }
+  // append/toggle; ensure the clicked one becomes "most recent" (at the end)
+  setSelectedIdx(prev => {
+    const without = prev.filter(i => i !== idx);
+    return [...without, idx];
+  });
+};
 
+
+  // const selectedItems = useMemo(() => selectedIdx.map(i => filteredPositions[i]).filter(Boolean), [selectedIdx, filteredPositions]);
+  const selectedItems = useMemo(
+    () => selectedIdx.slice().reverse().map(i => filteredPositions[i]).filter(Boolean),
+    [selectedIdx, filteredPositions]
+  );
+  
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', color: '#e5e5e5' }}>
       <Controls
