@@ -103,7 +103,7 @@ export default function Explorer() {
         onSelect={handleSelect}
       />
 
-      <MultiPreviewPanel data={data ?? null} items={selectedItems} />
+      <MultiPreviewPanel data={data ?? null} items={selectedItems}  hoverIdx={hoverIdx} />
     </div>
   );
 }

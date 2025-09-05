@@ -4,6 +4,7 @@ import type { Dataset, PositionItem } from '../types';
 type Props = {
   data: Dataset | null;
   items: PositionItem[]; // already selected items
+  hoverIdx: number | null;
 };
 
 type Box = {
