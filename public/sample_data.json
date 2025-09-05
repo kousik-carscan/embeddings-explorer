@@ -100,7 +100,7 @@
             "metadata":{
                 "image_id":4672642,
                 "image_name":"fc5e2165-25f5-4755-920a-a6c7660720af_Damages_4.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc5e2165-25f5-4755-920a-a6c7660720af_Damages_4.jpg",
+                "image_path":"/annotation-images/fc5e2165-25f5-4755-920a-a6c7660720af_Damages_4.jpg",
                 "assessment_uuid":"fc5e2165-25f5-4755-920a-a6c7660720af",
                 "prediction":{
                     "pred_id":353726,
@@ -137,7 +137,7 @@
             "metadata":{
                 "image_id":4670939,
                 "image_name":"fc5f87de-098f-45fd-a4a6-ccf1ae8554e1_Damages_4.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc5f87de-098f-45fd-a4a6-ccf1ae8554e1_Damages_4.jpg",
+                "image_path":"/annotation-images/fc5f87de-098f-45fd-a4a6-ccf1ae8554e1_Damages_4.jpg",
                 "assessment_uuid":"fc5f87de-098f-45fd-a4a6-ccf1ae8554e1",
                 "prediction":{
                     "pred_id":353729,
@@ -174,7 +174,7 @@
             "metadata":{
                 "image_id":1761386,
                 "image_name":"fc5e8e75-a925-4aa6-b4fe-0585bb6c2a21.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc5e8e75-a925-4aa6-b4fe-0585bb6c2a21.png",
+                "image_path":"/annotation-images/fc5e8e75-a925-4aa6-b4fe-0585bb6c2a21.png",
                 "assessment_uuid":"f4edfa40-60ed-47b9-b0aa-762cf5f7447b",
                 "prediction":{
                     "pred_id":353737,
@@ -211,7 +211,7 @@
             "metadata":{
                 "image_id":1761386,
                 "image_name":"fc5e8e75-a925-4aa6-b4fe-0585bb6c2a21.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc5e8e75-a925-4aa6-b4fe-0585bb6c2a21.png",
+                "image_path":"/annotation-images/fc5e8e75-a925-4aa6-b4fe-0585bb6c2a21.png",
                 "assessment_uuid":"f4edfa40-60ed-47b9-b0aa-762cf5f7447b",
                 "prediction":{
                     "pred_id":353738,
@@ -248,7 +248,7 @@
             "metadata":{
                 "image_id":4674895,
                 "image_name":"fc5f87de-098f-45fd-a4a6-ccf1ae8554e1_Damages_6.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc5f87de-098f-45fd-a4a6-ccf1ae8554e1_Damages_6.jpg",
+                "image_path":"/annotation-images/fc5f87de-098f-45fd-a4a6-ccf1ae8554e1_Damages_6.jpg",
                 "assessment_uuid":"fc5f87de-098f-45fd-a4a6-ccf1ae8554e1",
                 "prediction":{
                     "pred_id":353747,
@@ -285,7 +285,7 @@
             "metadata":{
                 "image_id":1675207,
                 "image_name":"fc614144-827b-433a-9308-e8b82d97920d7908032379747891423.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc614144-827b-433a-9308-e8b82d97920d7908032379747891423.png",
+                "image_path":"/annotation-images/fc614144-827b-433a-9308-e8b82d97920d7908032379747891423.png",
                 "assessment_uuid":"0dcdeb0b-a6df-47a5-9ec8-6fd647cba2c0",
                 "prediction":{
                     "pred_id":353753,
@@ -322,7 +322,7 @@
             "metadata":{
                 "image_id":1675207,
                 "image_name":"fc614144-827b-433a-9308-e8b82d97920d7908032379747891423.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc614144-827b-433a-9308-e8b82d97920d7908032379747891423.png",
+                "image_path":"/annotation-images/fc614144-827b-433a-9308-e8b82d97920d7908032379747891423.png",
                 "assessment_uuid":"0dcdeb0b-a6df-47a5-9ec8-6fd647cba2c0",
                 "prediction":{
                     "pred_id":353754,
@@ -433,7 +433,7 @@
             "metadata":{
                 "image_id":1719917,
                 "image_name":"fc6337e9-8e26-4000-9bad-d05caa0c19bb2769428733398409505.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc6337e9-8e26-4000-9bad-d05caa0c19bb2769428733398409505.png",
+                "image_path":"/annotation-images/fc6337e9-8e26-4000-9bad-d05caa0c19bb2769428733398409505.png",
                 "assessment_uuid":"e11f0706-fd34-4954-9c7a-2b8e03d542f9",
                 "prediction":{
                     "pred_id":353805,
@@ -470,7 +470,7 @@
             "metadata":{
                 "image_id":1719917,
                 "image_name":"fc6337e9-8e26-4000-9bad-d05caa0c19bb2769428733398409505.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc6337e9-8e26-4000-9bad-d05caa0c19bb2769428733398409505.png",
+                "image_path":"/annotation-images/fc6337e9-8e26-4000-9bad-d05caa0c19bb2769428733398409505.png",
                 "assessment_uuid":"e11f0706-fd34-4954-9c7a-2b8e03d542f9",
                 "prediction":{
                     "pred_id":353806,
@@ -507,7 +507,7 @@
             "metadata":{
                 "image_id":4900873,
                 "image_name":"fc677a52-57a4-40c8-8275-1ecd401f7cc5.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc677a52-57a4-40c8-8275-1ecd401f7cc5.png",
+                "image_path":"/annotation-images/fc677a52-57a4-40c8-8275-1ecd401f7cc5.png",
                 "assessment_uuid":"c6824a84-b1e5-44db-9021-465d95e6ebe2",
                 "prediction":{
                     "pred_id":353810,
@@ -544,7 +544,7 @@
             "metadata":{
                 "image_id":1715622,
                 "image_name":"fc6bdde7-9fe1-4459-bd15-62ffbdc654909182533815411319677.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc6bdde7-9fe1-4459-bd15-62ffbdc654909182533815411319677.png",
+                "image_path":"/annotation-images/fc6bdde7-9fe1-4459-bd15-62ffbdc654909182533815411319677.png",
                 "assessment_uuid":"5d31e6ae-e126-4e6f-8752-d7c0bf143c2b",
                 "prediction":{
                     "pred_id":353834,
@@ -581,7 +581,7 @@
             "metadata":{
                 "image_id":1715622,
                 "image_name":"fc6bdde7-9fe1-4459-bd15-62ffbdc654909182533815411319677.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc6bdde7-9fe1-4459-bd15-62ffbdc654909182533815411319677.png",
+                "image_path":"/annotation-images/fc6bdde7-9fe1-4459-bd15-62ffbdc654909182533815411319677.png",
                 "assessment_uuid":"5d31e6ae-e126-4e6f-8752-d7c0bf143c2b",
                 "prediction":{
                     "pred_id":353835,
@@ -618,7 +618,7 @@
             "metadata":{
                 "image_id":1715622,
                 "image_name":"fc6bdde7-9fe1-4459-bd15-62ffbdc654909182533815411319677.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc6bdde7-9fe1-4459-bd15-62ffbdc654909182533815411319677.png",
+                "image_path":"/annotation-images/fc6bdde7-9fe1-4459-bd15-62ffbdc654909182533815411319677.png",
                 "assessment_uuid":"5d31e6ae-e126-4e6f-8752-d7c0bf143c2b",
                 "prediction":{
                     "pred_id":353836,
@@ -655,7 +655,7 @@
             "metadata":{
                 "image_id":1686267,
                 "image_name":"fc704959-3150-4d2b-b9fc-e43b9cf8c9bd3575901510997954230.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc704959-3150-4d2b-b9fc-e43b9cf8c9bd3575901510997954230.png",
+                "image_path":"/annotation-images/fc704959-3150-4d2b-b9fc-e43b9cf8c9bd3575901510997954230.png",
                 "assessment_uuid":"dfd3cabc-7ca7-4ed6-85bd-1e07414602a2",
                 "prediction":{
                     "pred_id":353840,
@@ -692,7 +692,7 @@
             "metadata":{
                 "image_id":1686267,
                 "image_name":"fc704959-3150-4d2b-b9fc-e43b9cf8c9bd3575901510997954230.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc704959-3150-4d2b-b9fc-e43b9cf8c9bd3575901510997954230.png",
+                "image_path":"/annotation-images/fc704959-3150-4d2b-b9fc-e43b9cf8c9bd3575901510997954230.png",
                 "assessment_uuid":"dfd3cabc-7ca7-4ed6-85bd-1e07414602a2",
                 "prediction":{
                     "pred_id":353841,
@@ -729,7 +729,7 @@
             "metadata":{
                 "image_id":4791376,
                 "image_name":"fc720558-504a-464c-8ede-49679e062805.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc720558-504a-464c-8ede-49679e062805.png",
+                "image_path":"/annotation-images/fc720558-504a-464c-8ede-49679e062805.png",
                 "assessment_uuid":"87e8690e-ea63-4a6e-a814-68a889dfb3bb",
                 "prediction":{
                     "pred_id":353850,
@@ -766,7 +766,7 @@
             "metadata":{
                 "image_id":4788924,
                 "image_name":"fc767108-fe07-4b93-a40f-6cdd8ffc106d.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc767108-fe07-4b93-a40f-6cdd8ffc106d.jpeg",
+                "image_path":"/annotation-images/fc767108-fe07-4b93-a40f-6cdd8ffc106d.jpeg",
                 "assessment_uuid":"50ece986-ca70-4c44-aa33-82229a102838",
                 "prediction":{
                     "pred_id":353854,
@@ -803,7 +803,7 @@
             "metadata":{
                 "image_id":1730236,
                 "image_name":"fc764379-1c8a-48a4-92e8-018f3f27bb9617155032533342192150.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc764379-1c8a-48a4-92e8-018f3f27bb9617155032533342192150.png",
+                "image_path":"/annotation-images/fc764379-1c8a-48a4-92e8-018f3f27bb9617155032533342192150.png",
                 "assessment_uuid":"e32ca96e-c686-4153-ba1f-d6d5cebfabbb",
                 "prediction":{
                     "pred_id":353859,
@@ -877,7 +877,7 @@
             "metadata":{
                 "image_id":4758413,
                 "image_name":"fc7d155e-5420-42af-be5c-ef81c86c65a1.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc7d155e-5420-42af-be5c-ef81c86c65a1.png",
+                "image_path":"/annotation-images/fc7d155e-5420-42af-be5c-ef81c86c65a1.png",
                 "assessment_uuid":"d570ed08-6a3f-4317-bb98-38617ab398c7",
                 "prediction":{
                     "pred_id":353871,
@@ -914,7 +914,7 @@
             "metadata":{
                 "image_id":1056462,
                 "image_name":"fc820053-476d-42d1-9489-b0f54e07dd52.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc820053-476d-42d1-9489-b0f54e07dd52.png",
+                "image_path":"/annotation-images/fc820053-476d-42d1-9489-b0f54e07dd52.png",
                 "assessment_uuid":"25a0016d-bfe2-4d62-a005-22213d452e7d",
                 "prediction":{
                     "pred_id":353903,
@@ -951,7 +951,7 @@
             "metadata":{
                 "image_id":1738624,
                 "image_name":"fc88fcf2-338e-4f3c-b1c2-63f30d069ef86994802708171489318.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc88fcf2-338e-4f3c-b1c2-63f30d069ef86994802708171489318.png",
+                "image_path":"/annotation-images/fc88fcf2-338e-4f3c-b1c2-63f30d069ef86994802708171489318.png",
                 "assessment_uuid":"f22331f6-3d30-4583-8ce5-8343a9566cce",
                 "prediction":{
                     "pred_id":353913,
@@ -988,7 +988,7 @@
             "metadata":{
                 "image_id":1684810,
                 "image_name":"fc85cd35-445f-4304-9942-27df1edc219913175361038031303549.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc85cd35-445f-4304-9942-27df1edc219913175361038031303549.png",
+                "image_path":"/annotation-images/fc85cd35-445f-4304-9942-27df1edc219913175361038031303549.png",
                 "assessment_uuid":"b68ab759-393b-425e-b7de-61c87d5f13d3",
                 "prediction":{
                     "pred_id":353915,
@@ -1025,7 +1025,7 @@
             "metadata":{
                 "image_id":1684810,
                 "image_name":"fc85cd35-445f-4304-9942-27df1edc219913175361038031303549.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc85cd35-445f-4304-9942-27df1edc219913175361038031303549.png",
+                "image_path":"/annotation-images/fc85cd35-445f-4304-9942-27df1edc219913175361038031303549.png",
                 "assessment_uuid":"b68ab759-393b-425e-b7de-61c87d5f13d3",
                 "prediction":{
                     "pred_id":353916,
@@ -1062,7 +1062,7 @@
             "metadata":{
                 "image_id":1692376,
                 "image_name":"fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
+                "image_path":"/annotation-images/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
                 "assessment_uuid":"afbf6cd1-d82a-4b2e-8966-45389158f3a5",
                 "prediction":{
                     "pred_id":353926,
@@ -1099,7 +1099,7 @@
             "metadata":{
                 "image_id":1692376,
                 "image_name":"fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
+                "image_path":"/annotation-images/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
                 "assessment_uuid":"afbf6cd1-d82a-4b2e-8966-45389158f3a5",
                 "prediction":{
                     "pred_id":353927,
@@ -1136,7 +1136,7 @@
             "metadata":{
                 "image_id":1692376,
                 "image_name":"fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
+                "image_path":"/annotation-images/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
                 "assessment_uuid":"afbf6cd1-d82a-4b2e-8966-45389158f3a5",
                 "prediction":{
                     "pred_id":353928,
@@ -1173,7 +1173,7 @@
             "metadata":{
                 "image_id":1692376,
                 "image_name":"fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
+                "image_path":"/annotation-images/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
                 "assessment_uuid":"afbf6cd1-d82a-4b2e-8966-45389158f3a5",
                 "prediction":{
                     "pred_id":353929,
@@ -1210,7 +1210,7 @@
             "metadata":{
                 "image_id":1692376,
                 "image_name":"fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
+                "image_path":"/annotation-images/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
                 "assessment_uuid":"afbf6cd1-d82a-4b2e-8966-45389158f3a5",
                 "prediction":{
                     "pred_id":353930,
@@ -1247,7 +1247,7 @@
             "metadata":{
                 "image_id":1692376,
                 "image_name":"fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
+                "image_path":"/annotation-images/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
                 "assessment_uuid":"afbf6cd1-d82a-4b2e-8966-45389158f3a5",
                 "prediction":{
                     "pred_id":353931,
@@ -1284,7 +1284,7 @@
             "metadata":{
                 "image_id":1692376,
                 "image_name":"fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
+                "image_path":"/annotation-images/fc86b5c7-6ec4-4927-9c58-1e8ae89cf81d17309546825329451115.png",
                 "assessment_uuid":"afbf6cd1-d82a-4b2e-8966-45389158f3a5",
                 "prediction":{
                     "pred_id":353932,
@@ -1321,7 +1321,7 @@
             "metadata":{
                 "image_id":1788270,
                 "image_name":"fc869e77-18e8-4876-956d-ec34f4a016ad.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc869e77-18e8-4876-956d-ec34f4a016ad.png",
+                "image_path":"/annotation-images/fc869e77-18e8-4876-956d-ec34f4a016ad.png",
                 "assessment_uuid":"8384e865-320e-4a02-8bc9-7ee2168f85c8",
                 "prediction":{
                     "pred_id":353944,
@@ -1357,8 +1357,8 @@
             },
             "metadata":{
                 "image_id":4935574,
-                "image_name":"fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
+                "image_name":"1.jpeg",
+                "image_path":"/annotation-images/1.jpeg",
                 "assessment_uuid":"a9551387-41db-4e86-bf23-e79c9ae698af",
                 "prediction":{
                     "pred_id":353955,
@@ -1394,8 +1394,8 @@
             },
             "metadata":{
                 "image_id":4935574,
-                "image_name":"fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
+                "image_name":"1.jpeg",
+                "image_path":"/annotation-images/1.jpeg",
                 "assessment_uuid":"a9551387-41db-4e86-bf23-e79c9ae698af",
                 "prediction":{
                     "pred_id":353956,
@@ -1431,8 +1431,8 @@
             },
             "metadata":{
                 "image_id":4935574,
-                "image_name":"fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
+                "image_name":"1.jpeg",
+                "image_path":"/annotation-images/1.jpeg",
                 "assessment_uuid":"a9551387-41db-4e86-bf23-e79c9ae698af",
                 "prediction":{
                     "pred_id":353957,
@@ -1468,8 +1468,8 @@
             },
             "metadata":{
                 "image_id":4935574,
-                "image_name":"fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
+                "image_name":"1.jpeg",
+                "image_path":"/annotation-images/1.jpeg",
                 "assessment_uuid":"a9551387-41db-4e86-bf23-e79c9ae698af",
                 "prediction":{
                     "pred_id":353958,
@@ -1505,8 +1505,8 @@
             },
             "metadata":{
                 "image_id":4935574,
-                "image_name":"fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc8dcf49-6f66-4857-95f7-99d475715bc2.jpeg",
+                "image_name":"1.jpeg",
+                "image_path":"/annotation-images/1.jpeg",
                 "assessment_uuid":"a9551387-41db-4e86-bf23-e79c9ae698af",
                 "prediction":{
                     "pred_id":353959,
@@ -1543,7 +1543,7 @@
             "metadata":{
                 "image_id":4499159,
                 "image_name":"fc95af62-8209-4934-9d1b-fec881886b458521147383290051094.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc95af62-8209-4934-9d1b-fec881886b458521147383290051094.jpg",
+                "image_path":"/annotation-images/fc95af62-8209-4934-9d1b-fec881886b458521147383290051094.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":353991,
@@ -1580,7 +1580,7 @@
             "metadata":{
                 "image_id":4499159,
                 "image_name":"fc95af62-8209-4934-9d1b-fec881886b458521147383290051094.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc95af62-8209-4934-9d1b-fec881886b458521147383290051094.jpg",
+                "image_path":"/annotation-images/fc95af62-8209-4934-9d1b-fec881886b458521147383290051094.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":353992,
@@ -1617,7 +1617,7 @@
             "metadata":{
                 "image_id":1685790,
                 "image_name":"fc956655-2a2f-46e2-89e8-af92a37fbd716943874186894948208.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc956655-2a2f-46e2-89e8-af92a37fbd716943874186894948208.png",
+                "image_path":"/annotation-images/fc956655-2a2f-46e2-89e8-af92a37fbd716943874186894948208.png",
                 "assessment_uuid":"37df2d2d-a981-439a-a886-6a9555123b70",
                 "prediction":{
                     "pred_id":353996,
@@ -1654,7 +1654,7 @@
             "metadata":{
                 "image_id":1685790,
                 "image_name":"fc956655-2a2f-46e2-89e8-af92a37fbd716943874186894948208.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc956655-2a2f-46e2-89e8-af92a37fbd716943874186894948208.png",
+                "image_path":"/annotation-images/fc956655-2a2f-46e2-89e8-af92a37fbd716943874186894948208.png",
                 "assessment_uuid":"37df2d2d-a981-439a-a886-6a9555123b70",
                 "prediction":{
                     "pred_id":353997,
@@ -1691,7 +1691,7 @@
             "metadata":{
                 "image_id":4749554,
                 "image_name":"fc9a53a8-3b04-4f97-be3a-cde67435e01d.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc9a53a8-3b04-4f97-be3a-cde67435e01d.png",
+                "image_path":"/annotation-images/fc9a53a8-3b04-4f97-be3a-cde67435e01d.png",
                 "assessment_uuid":"bb9f232d-f0a5-460b-9d9f-11d35aecff20",
                 "prediction":{
                     "pred_id":354000,
@@ -1728,7 +1728,7 @@
             "metadata":{
                 "image_id":4749554,
                 "image_name":"fc9a53a8-3b04-4f97-be3a-cde67435e01d.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc9a53a8-3b04-4f97-be3a-cde67435e01d.png",
+                "image_path":"/annotation-images/fc9a53a8-3b04-4f97-be3a-cde67435e01d.png",
                 "assessment_uuid":"bb9f232d-f0a5-460b-9d9f-11d35aecff20",
                 "prediction":{
                     "pred_id":354001,
@@ -1765,7 +1765,7 @@
             "metadata":{
                 "image_id":4749554,
                 "image_name":"fc9a53a8-3b04-4f97-be3a-cde67435e01d.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc9a53a8-3b04-4f97-be3a-cde67435e01d.png",
+                "image_path":"/annotation-images/fc9a53a8-3b04-4f97-be3a-cde67435e01d.png",
                 "assessment_uuid":"bb9f232d-f0a5-460b-9d9f-11d35aecff20",
                 "prediction":{
                     "pred_id":354002,
@@ -1802,7 +1802,7 @@
             "metadata":{
                 "image_id":1298809,
                 "image_name":"fc9c65a9-dadd-421a-9d7e-f06f9d3e0afd.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc9c65a9-dadd-421a-9d7e-f06f9d3e0afd.png",
+                "image_path":"/annotation-images/fc9c65a9-dadd-421a-9d7e-f06f9d3e0afd.png",
                 "assessment_uuid":"38b72c4e-9e34-4a5c-a2f0-43e222978b41",
                 "prediction":{
                     "pred_id":354012,
@@ -1839,7 +1839,7 @@
             "metadata":{
                 "image_id":4675255,
                 "image_name":"fc9b9b82-6026-4660-be0b-526b06fe61ea_Damages_7.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fc9b9b82-6026-4660-be0b-526b06fe61ea_Damages_7.jpg",
+                "image_path":"/annotation-images/fc9b9b82-6026-4660-be0b-526b06fe61ea_Damages_7.jpg",
                 "assessment_uuid":"fc9b9b82-6026-4660-be0b-526b06fe61ea",
                 "prediction":{
                     "pred_id":354018,
@@ -1987,7 +1987,7 @@
             "metadata":{
                 "image_id":1725204,
                 "image_name":"fca06824-e3d6-4324-8e09-4e67604d292f4606655614272392706.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca06824-e3d6-4324-8e09-4e67604d292f4606655614272392706.png",
+                "image_path":"/annotation-images/fca06824-e3d6-4324-8e09-4e67604d292f4606655614272392706.png",
                 "assessment_uuid":"12e7cdd4-08a0-4298-8f2f-a673759e7269",
                 "prediction":{
                     "pred_id":354054,
@@ -2024,7 +2024,7 @@
             "metadata":{
                 "image_id":1725204,
                 "image_name":"fca06824-e3d6-4324-8e09-4e67604d292f4606655614272392706.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca06824-e3d6-4324-8e09-4e67604d292f4606655614272392706.png",
+                "image_path":"/annotation-images/fca06824-e3d6-4324-8e09-4e67604d292f4606655614272392706.png",
                 "assessment_uuid":"12e7cdd4-08a0-4298-8f2f-a673759e7269",
                 "prediction":{
                     "pred_id":354055,
@@ -2061,7 +2061,7 @@
             "metadata":{
                 "image_id":1725204,
                 "image_name":"fca06824-e3d6-4324-8e09-4e67604d292f4606655614272392706.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca06824-e3d6-4324-8e09-4e67604d292f4606655614272392706.png",
+                "image_path":"/annotation-images/fca06824-e3d6-4324-8e09-4e67604d292f4606655614272392706.png",
                 "assessment_uuid":"12e7cdd4-08a0-4298-8f2f-a673759e7269",
                 "prediction":{
                     "pred_id":354056,
@@ -2098,7 +2098,7 @@
             "metadata":{
                 "image_id":1683417,
                 "image_name":"fca0e6f8-d062-4c34-a2fc-08e6d028a9ec941270385879812700.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca0e6f8-d062-4c34-a2fc-08e6d028a9ec941270385879812700.png",
+                "image_path":"/annotation-images/fca0e6f8-d062-4c34-a2fc-08e6d028a9ec941270385879812700.png",
                 "assessment_uuid":"f652a928-83a1-4ec8-bd49-3c04dacf2a86",
                 "prediction":{
                     "pred_id":354063,
@@ -2135,7 +2135,7 @@
             "metadata":{
                 "image_id":1767650,
                 "image_name":"fca14058-91ed-46b4-ac15-e46dde41aaab.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca14058-91ed-46b4-ac15-e46dde41aaab.png",
+                "image_path":"/annotation-images/fca14058-91ed-46b4-ac15-e46dde41aaab.png",
                 "assessment_uuid":"f1516ee7-5cdb-49e5-8efa-110d2518f612",
                 "prediction":{
                     "pred_id":354072,
@@ -2172,7 +2172,7 @@
             "metadata":{
                 "image_id":1786847,
                 "image_name":"fca69811-fbf9-4865-9fd8-cff265d0702f.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca69811-fbf9-4865-9fd8-cff265d0702f.jpeg",
+                "image_path":"/annotation-images/fca69811-fbf9-4865-9fd8-cff265d0702f.jpeg",
                 "assessment_uuid":"a7dfd716-de27-4e17-b28d-2c12b8ba8ce1",
                 "prediction":{
                     "pred_id":354074,
@@ -2209,7 +2209,7 @@
             "metadata":{
                 "image_id":1786847,
                 "image_name":"fca69811-fbf9-4865-9fd8-cff265d0702f.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca69811-fbf9-4865-9fd8-cff265d0702f.jpeg",
+                "image_path":"/annotation-images/fca69811-fbf9-4865-9fd8-cff265d0702f.jpeg",
                 "assessment_uuid":"a7dfd716-de27-4e17-b28d-2c12b8ba8ce1",
                 "prediction":{
                     "pred_id":354075,
@@ -2246,7 +2246,7 @@
             "metadata":{
                 "image_id":1786847,
                 "image_name":"fca69811-fbf9-4865-9fd8-cff265d0702f.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca69811-fbf9-4865-9fd8-cff265d0702f.jpeg",
+                "image_path":"/annotation-images/fca69811-fbf9-4865-9fd8-cff265d0702f.jpeg",
                 "assessment_uuid":"a7dfd716-de27-4e17-b28d-2c12b8ba8ce1",
                 "prediction":{
                     "pred_id":354076,
@@ -2320,7 +2320,7 @@
             "metadata":{
                 "image_id":4749094,
                 "image_name":"fca808b9-2f8c-4909-8964-289c6b8c3b86.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca808b9-2f8c-4909-8964-289c6b8c3b86.png",
+                "image_path":"/annotation-images/fca808b9-2f8c-4909-8964-289c6b8c3b86.png",
                 "assessment_uuid":"9d6a733b-5909-4f8e-abc1-488ee2a2f034",
                 "prediction":{
                     "pred_id":354081,
@@ -2357,7 +2357,7 @@
             "metadata":{
                 "image_id":4513062,
                 "image_name":"fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
+                "image_path":"/annotation-images/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354089,
@@ -2394,7 +2394,7 @@
             "metadata":{
                 "image_id":4513062,
                 "image_name":"fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
+                "image_path":"/annotation-images/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354090,
@@ -2431,7 +2431,7 @@
             "metadata":{
                 "image_id":4513062,
                 "image_name":"fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
+                "image_path":"/annotation-images/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354091,
@@ -2468,7 +2468,7 @@
             "metadata":{
                 "image_id":4513062,
                 "image_name":"fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
+                "image_path":"/annotation-images/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354092,
@@ -2505,7 +2505,7 @@
             "metadata":{
                 "image_id":4513062,
                 "image_name":"fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
+                "image_path":"/annotation-images/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354093,
@@ -2542,7 +2542,7 @@
             "metadata":{
                 "image_id":4513062,
                 "image_name":"fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
+                "image_path":"/annotation-images/fca9eabb-a344-4563-9c0e-bc7228e0a0328094201633392987180.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354094,
@@ -2616,7 +2616,7 @@
             "metadata":{
                 "image_id":1233759,
                 "image_name":"fcaf10c6-e6a9-4bb7-8089-b03ee23f6888.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcaf10c6-e6a9-4bb7-8089-b03ee23f6888.png",
+                "image_path":"/annotation-images/fcaf10c6-e6a9-4bb7-8089-b03ee23f6888.png",
                 "assessment_uuid":"bb60fe8d-69a1-4010-94ff-1189d60e3fd6",
                 "prediction":{
                     "pred_id":354109,
@@ -2653,7 +2653,7 @@
             "metadata":{
                 "image_id":4956987,
                 "image_name":"fcaf3bf9-5ec7-4c68-9f2d-c41826e4190c.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcaf3bf9-5ec7-4c68-9f2d-c41826e4190c.jpeg",
+                "image_path":"/annotation-images/fcaf3bf9-5ec7-4c68-9f2d-c41826e4190c.jpeg",
                 "assessment_uuid":"57b9f4c2-4192-4257-aab2-314c3bf8fd17",
                 "prediction":{
                     "pred_id":354111,
@@ -2690,7 +2690,7 @@
             "metadata":{
                 "image_id":4954778,
                 "image_name":"fcb05149-db3c-4562-9ba2-87a3d90dcbd7.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcb05149-db3c-4562-9ba2-87a3d90dcbd7.png",
+                "image_path":"/annotation-images/fcb05149-db3c-4562-9ba2-87a3d90dcbd7.png",
                 "assessment_uuid":"8c3c99e2-3299-4565-b442-f18d534ceab7",
                 "prediction":{
                     "pred_id":354115,
@@ -2727,7 +2727,7 @@
             "metadata":{
                 "image_id":4954778,
                 "image_name":"fcb05149-db3c-4562-9ba2-87a3d90dcbd7.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcb05149-db3c-4562-9ba2-87a3d90dcbd7.png",
+                "image_path":"/annotation-images/fcb05149-db3c-4562-9ba2-87a3d90dcbd7.png",
                 "assessment_uuid":"8c3c99e2-3299-4565-b442-f18d534ceab7",
                 "prediction":{
                     "pred_id":354116,
@@ -2764,7 +2764,7 @@
             "metadata":{
                 "image_id":4954778,
                 "image_name":"fcb05149-db3c-4562-9ba2-87a3d90dcbd7.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcb05149-db3c-4562-9ba2-87a3d90dcbd7.png",
+                "image_path":"/annotation-images/fcb05149-db3c-4562-9ba2-87a3d90dcbd7.png",
                 "assessment_uuid":"8c3c99e2-3299-4565-b442-f18d534ceab7",
                 "prediction":{
                     "pred_id":354117,
@@ -2801,7 +2801,7 @@
             "metadata":{
                 "image_id":1366693,
                 "image_name":"fcb52444-b916-4c75-9ba1-60e7b0d1e565.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcb52444-b916-4c75-9ba1-60e7b0d1e565.png",
+                "image_path":"/annotation-images/fcb52444-b916-4c75-9ba1-60e7b0d1e565.png",
                 "assessment_uuid":"c0983739-9b72-4fc2-8fd5-f0a4e3ed2924",
                 "prediction":{
                     "pred_id":354139,
@@ -2838,7 +2838,7 @@
             "metadata":{
                 "image_id":4523026,
                 "image_name":"fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
+                "image_path":"/annotation-images/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354141,
@@ -2875,7 +2875,7 @@
             "metadata":{
                 "image_id":4523026,
                 "image_name":"fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
+                "image_path":"/annotation-images/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354142,
@@ -2912,7 +2912,7 @@
             "metadata":{
                 "image_id":4523026,
                 "image_name":"fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
+                "image_path":"/annotation-images/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354143,
@@ -2949,7 +2949,7 @@
             "metadata":{
                 "image_id":4523026,
                 "image_name":"fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
+                "image_path":"/annotation-images/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354144,
@@ -2986,7 +2986,7 @@
             "metadata":{
                 "image_id":4523026,
                 "image_name":"fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
+                "image_path":"/annotation-images/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354145,
@@ -3023,7 +3023,7 @@
             "metadata":{
                 "image_id":4523026,
                 "image_name":"fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
+                "image_path":"/annotation-images/fcaf02b2-d32a-11ea-b28b-0242ac13000320200731-124016.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354146,
@@ -3060,7 +3060,7 @@
             "metadata":{
                 "image_id":4936674,
                 "image_name":"fcb5f01e-0309-4b61-aa57-3597f70068e1.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcb5f01e-0309-4b61-aa57-3597f70068e1.png",
+                "image_path":"/annotation-images/fcb5f01e-0309-4b61-aa57-3597f70068e1.png",
                 "assessment_uuid":"adbe7af2-3277-4b99-8c66-a15b8fe0bca7",
                 "prediction":{
                     "pred_id":354162,
@@ -3097,7 +3097,7 @@
             "metadata":{
                 "image_id":4954784,
                 "image_name":"fcb65354-e53b-4814-b2e3-ade0c52dbd47.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcb65354-e53b-4814-b2e3-ade0c52dbd47.png",
+                "image_path":"/annotation-images/fcb65354-e53b-4814-b2e3-ade0c52dbd47.png",
                 "assessment_uuid":"8c3c99e2-3299-4565-b442-f18d534ceab7",
                 "prediction":{
                     "pred_id":354174,
@@ -3134,7 +3134,7 @@
             "metadata":{
                 "image_id":4954784,
                 "image_name":"fcb65354-e53b-4814-b2e3-ade0c52dbd47.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcb65354-e53b-4814-b2e3-ade0c52dbd47.png",
+                "image_path":"/annotation-images/fcb65354-e53b-4814-b2e3-ade0c52dbd47.png",
                 "assessment_uuid":"8c3c99e2-3299-4565-b442-f18d534ceab7",
                 "prediction":{
                     "pred_id":354175,
@@ -3171,7 +3171,7 @@
             "metadata":{
                 "image_id":4499163,
                 "image_name":"fcbbd738-5b64-4ce3-abb4-123a1824e39513429033982933465491.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcbbd738-5b64-4ce3-abb4-123a1824e39513429033982933465491.jpg",
+                "image_path":"/annotation-images/fcbbd738-5b64-4ce3-abb4-123a1824e39513429033982933465491.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354192,
@@ -3208,7 +3208,7 @@
             "metadata":{
                 "image_id":4769798,
                 "image_name":"fcbdb39f-ac5d-40fe-90be-23df6cb9179c.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcbdb39f-ac5d-40fe-90be-23df6cb9179c.png",
+                "image_path":"/annotation-images/fcbdb39f-ac5d-40fe-90be-23df6cb9179c.png",
                 "assessment_uuid":"ed1a46f2-e015-42d8-a0d2-8760b1ab6613",
                 "prediction":{
                     "pred_id":354199,
@@ -3245,7 +3245,7 @@
             "metadata":{
                 "image_id":4769798,
                 "image_name":"fcbdb39f-ac5d-40fe-90be-23df6cb9179c.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcbdb39f-ac5d-40fe-90be-23df6cb9179c.png",
+                "image_path":"/annotation-images/fcbdb39f-ac5d-40fe-90be-23df6cb9179c.png",
                 "assessment_uuid":"ed1a46f2-e015-42d8-a0d2-8760b1ab6613",
                 "prediction":{
                     "pred_id":354200,
@@ -3356,7 +3356,7 @@
             "metadata":{
                 "image_id":4475684,
                 "image_name":"fcc3d938-3ee1-4ed6-becd-c4cba77a4de9.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcc3d938-3ee1-4ed6-becd-c4cba77a4de9.jpg",
+                "image_path":"/annotation-images/fcc3d938-3ee1-4ed6-becd-c4cba77a4de9.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354240,
@@ -3393,7 +3393,7 @@
             "metadata":{
                 "image_id":1741012,
                 "image_name":"fcc08874-26f4-4f5e-b6b4-5df712bbb19e15820164154461485820.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcc08874-26f4-4f5e-b6b4-5df712bbb19e15820164154461485820.png",
+                "image_path":"/annotation-images/fcc08874-26f4-4f5e-b6b4-5df712bbb19e15820164154461485820.png",
                 "assessment_uuid":"4ee0ee16-8a40-49a6-ab93-340c6870a4db",
                 "prediction":{
                     "pred_id":354247,
@@ -3430,7 +3430,7 @@
             "metadata":{
                 "image_id":4900788,
                 "image_name":"fcc6cb18-bf44-4ec7-86cb-d9ad69ab18e4.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcc6cb18-bf44-4ec7-86cb-d9ad69ab18e4.jpeg",
+                "image_path":"/annotation-images/fcc6cb18-bf44-4ec7-86cb-d9ad69ab18e4.jpeg",
                 "assessment_uuid":"c19d8523-dbf9-43ad-b35e-b9688e560a1b",
                 "prediction":{
                     "pred_id":354252,
@@ -3467,7 +3467,7 @@
             "metadata":{
                 "image_id":4900788,
                 "image_name":"fcc6cb18-bf44-4ec7-86cb-d9ad69ab18e4.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcc6cb18-bf44-4ec7-86cb-d9ad69ab18e4.jpeg",
+                "image_path":"/annotation-images/fcc6cb18-bf44-4ec7-86cb-d9ad69ab18e4.jpeg",
                 "assessment_uuid":"c19d8523-dbf9-43ad-b35e-b9688e560a1b",
                 "prediction":{
                     "pred_id":354253,
@@ -3504,7 +3504,7 @@
             "metadata":{
                 "image_id":4941514,
                 "image_name":"fcc502b8-fce9-4080-9c18-49756009f111.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcc502b8-fce9-4080-9c18-49756009f111.png",
+                "image_path":"/annotation-images/fcc502b8-fce9-4080-9c18-49756009f111.png",
                 "assessment_uuid":"4827fd39-6ed3-42aa-bb69-ef6939d206b9",
                 "prediction":{
                     "pred_id":354259,
@@ -3541,7 +3541,7 @@
             "metadata":{
                 "image_id":4737359,
                 "image_name":"fcc50529-9945-470b-9d8c-fa8549342a37.png",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcc50529-9945-470b-9d8c-fa8549342a37.png",
+                "image_path":"/annotation-images/fcc50529-9945-470b-9d8c-fa8549342a37.png",
                 "assessment_uuid":"bc1eebbc-f60f-4606-8a7e-931a7b31e92a",
                 "prediction":{
                     "pred_id":354264,
@@ -3578,7 +3578,7 @@
             "metadata":{
                 "image_id":4474854,
                 "image_name":"fcc9cfdb-a4dc-485e-b8b6-f52d58b3a54b2515641711952922223.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcc9cfdb-a4dc-485e-b8b6-f52d58b3a54b2515641711952922223.jpg",
+                "image_path":"/annotation-images/fcc9cfdb-a4dc-485e-b8b6-f52d58b3a54b2515641711952922223.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354270,
@@ -3615,7 +3615,7 @@
             "metadata":{
                 "image_id":4474854,
                 "image_name":"fcc9cfdb-a4dc-485e-b8b6-f52d58b3a54b2515641711952922223.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcc9cfdb-a4dc-485e-b8b6-f52d58b3a54b2515641711952922223.jpg",
+                "image_path":"/annotation-images/fcc9cfdb-a4dc-485e-b8b6-f52d58b3a54b2515641711952922223.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354271,
@@ -3652,7 +3652,7 @@
             "metadata":{
                 "image_id":4474854,
                 "image_name":"fcc9cfdb-a4dc-485e-b8b6-f52d58b3a54b2515641711952922223.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcc9cfdb-a4dc-485e-b8b6-f52d58b3a54b2515641711952922223.jpg",
+                "image_path":"/annotation-images/fcc9cfdb-a4dc-485e-b8b6-f52d58b3a54b2515641711952922223.jpg",
                 "assessment_uuid":"stand-alone",
                 "prediction":{
                     "pred_id":354272,
@@ -3689,7 +3689,7 @@
             "metadata":{
                 "image_id":667019,
                 "image_name":"fcd02e7a-811b-4a96-8fef-9386292e584d.jpeg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fcd02e7a-811b-4a96-8fef-9386292e584d.jpeg",
+                "image_path":"/annotation-images/fcd02e7a-811b-4a96-8fef-9386292e584d.jpeg",
                 "assessment_uuid":"47f8b6bb-93c5-4a3f-b3bd-cd4b61cf8f88",
                 "prediction":{
                     "pred_id":354279,
@@ -3726,7 +3726,7 @@
             "metadata":{
                 "image_id":4675484,
                 "image_name":"fccd0d7b-4eb8-41dc-9301-006b6c29b090_Damages_7.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fccd0d7b-4eb8-41dc-9301-006b6c29b090_Damages_7.jpg",
+                "image_path":"/annotation-images/fccd0d7b-4eb8-41dc-9301-006b6c29b090_Damages_7.jpg",
                 "assessment_uuid":"fccd0d7b-4eb8-41dc-9301-006b6c29b090",
                 "prediction":{
                     "pred_id":354306,
@@ -3763,7 +3763,7 @@
             "metadata":{
                 "image_id":4675484,
                 "image_name":"fccd0d7b-4eb8-41dc-9301-006b6c29b090_Damages_7.jpg",
-                "image_path":"/mnt/aitraining/pushpak/dent_scratch_chipped_detection/datasets/dent_scratch_v2/images/train/fccd0d7b-4eb8-41dc-9301-006b6c29b090_Damages_7.jpg",
+                "image_path":"/annotation-images/fccd0d7b-4eb8-41dc-9301-006b6c29b090_Damages_7.jpg",
                 "assessment_uuid":"fccd0d7b-4eb8-41dc-9301-006b6c29b090",
                 "prediction":{
                     "pred_id":354307,
