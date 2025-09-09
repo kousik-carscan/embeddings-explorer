@@ -13,24 +13,28 @@ type Props = {
   status: string;
   footerRight?: React.ReactNode;
   disabledCluster: boolean;
-  extra?: React.ReactNode; // e.g., FileUploader
+  extra?: React.ReactNode;
 
-  // NEW: you already declared these in Props, now actually receive them
   clusterFilter?: string | number | null;
   setClusterFilter?: (v: string | number | null) => void;
   availableClusterValues?: Array<string | number>;
 
-  clusterDistribution?: Array<[string, number]>;
+  // NEW
+  selectionShape: 'rect' | 'circle';
+  setSelectionShape: (s: 'rect' | 'circle') => void;
 
+  clusterDistribution?: Array<[string, number]>;
 };
 
 export default function Controls({
   name, method, clusterKeys, scheme, setScheme,
   colorMode, setColorMode, pointSize, setPointSize,
   status, footerRight, disabledCluster, extra,
-  clusterFilter, setClusterFilter, availableClusterValues, clusterDistribution
+  clusterFilter, setClusterFilter, availableClusterValues,
+  selectionShape, setSelectionShape,
+  clusterDistribution
 }: Props) {
-  // helper: coerce filter value back to number if it looks numeric
+
   const coerce = (v: string): string | number => {
     if (v === '') return '';
     const asNum = Number(v);
@@ -48,16 +52,13 @@ export default function Controls({
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: 6, alignItems: 'center' }}>
-        {/* Cluster scheme selector (RESTORED) */}
         <label>Cluster</label>
         <select
           value={scheme}
           onChange={(e) => {
             const v = e.target.value;
             setScheme(v);
-            // make the change visible immediately
             setColorMode('cluster');
-            // clear filter because labels differ per scheme
             setClusterFilter?.(null);
           }}
           disabled={disabledCluster}
@@ -65,9 +66,7 @@ export default function Controls({
           {disabledCluster ? (
             <option value="dbscan">(no clusters)</option>
           ) : (
-            clusterKeys.map((k) => (
-              <option key={k} value={k}>{k}</option>
-            ))
+            clusterKeys.map((k) => <option key={k} value={k}>{k}</option>)
           )}
         </select>
 
@@ -77,7 +76,6 @@ export default function Controls({
           onChange={(e) => {
             const m = e.target.value as 'cluster' | 'score';
             setColorMode(m);
-            // optional: when leaving cluster mode, clear filter so it doesn't “stick”
             if (m !== 'cluster') setClusterFilter?.(null);
           }}
         >
@@ -85,7 +83,6 @@ export default function Controls({
           <option value="score">score</option>
         </select>
 
-        {/* Cluster value filter (only when coloring by clusters) */}
         {colorMode === 'cluster' && (
           <>
             <label>Filter cluster</label>
@@ -100,33 +97,21 @@ export default function Controls({
             >
               <option value="">(all)</option>
               {(availableClusterValues ?? []).map((v) => (
-                <option key={String(v)} value={String(v)}>
-                  {String(v)}
-                </option>
+                <option key={String(v)} value={String(v)}>{String(v)}</option>
               ))}
             </select>
           </>
         )}
 
-
-        {colorMode === 'cluster' && (clusterDistribution?.length ?? 0) > 0 && (
-          <>
-            <div style={{ gridColumn: '1 / -1', marginTop: 6, fontWeight: 600 }}>
-              Cluster counts
-            </div>
-            <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, maxHeight: 140, overflow: 'auto' }}>
-              {clusterDistribution!.map(([lab, cnt]) => (
-                <div key={lab} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.06)', padding: '4px 8px', borderRadius: 6 }}>
-                  <span>{lab}</span>
-                  <span style={{ opacity: 0.8 }}>{cnt}</span>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-
-
+        {/* NEW: Selection shape */}
+        <label>Selection shape</label>
+        <select
+          value={selectionShape}
+          onChange={(e) => setSelectionShape(e.target.value as 'rect' | 'circle')}
+        >
+          <option value="rect">Rectangle</option>
+          <option value="circle">Circle</option>
+        </select>
 
         <label>Point size</label>
         <input
@@ -141,6 +126,23 @@ export default function Controls({
       </div>
 
       <div style={{ marginTop: 10 }}>{extra}</div>
+
+      {colorMode === 'cluster' && (clusterDistribution?.length ?? 0) > 0 && (
+        <>
+          <div style={{ marginTop: 8, fontWeight: 600 }}>Cluster counts</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, maxHeight: 140, overflow: 'auto' }}>
+            {clusterDistribution!.map(([lab, cnt]) => (
+              <div key={lab} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.06)', padding: '4px 8px', borderRadius: 6 }}>
+                <span>{lab}</span>
+                <span style={{ opacity: 0.8 }}>{cnt}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      <div style={{ marginTop: 8, fontSize: 11, opacity: 0.8 }}>
+        Tip: <b>Shift+Drag</b> to marquee select. Hold <b>⌘/Ctrl</b> while dragging to append.
+      </div>
     </div>
   );
 }

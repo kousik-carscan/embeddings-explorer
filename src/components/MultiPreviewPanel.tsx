@@ -18,9 +18,9 @@ function getPreviewSrc(item: PositionItem | null): string | null {
   const p = item.metadata?.image_path || '';
   if (p && /^https?:\/\//i.test(p)) return p;
   return '/annotation-images/1.jpeg';
-  // return p;
 }
 
+// -------- BBox overlay (unchanged logic) --------
 function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null }) {
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [dim, setDim] = useState({ w: 0, h: 0, naturalW: 0, naturalH: 0 });
@@ -59,7 +59,7 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
     const ro = new ResizeObserver(sync);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [getPreviewSrc(item)]);
 
   const toCssRect = (b: Box) => {
     const { w, h, naturalW, naturalH } = dim;
@@ -118,33 +118,176 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
   );
 }
 
+// -------------- Slider UI --------------
 export default function MultiPreviewPanel({ data, items }: Props) {
+  const [idx, setIdx] = useState(0);
+
+  // keep index valid when items change
+  useEffect(() => {
+    if (idx > items.length - 1) setIdx(Math.max(0, items.length - 1));
+  }, [items.length, idx]);
+
+  const hasItems = items.length > 0;
+  const current = hasItems ? items[idx] : null;
+  const total = items.length;
+
+  const go = (delta: number) => {
+    if (!hasItems) return;
+    setIdx(i => {
+      const n = i + delta;
+      if (n < 0) return total - 1;        // wrap
+      if (n >= total) return 0;           // wrap
+      return n;
+    });
+  };
+
+  // keyboard left/right
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!hasItems) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(+1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [hasItems, total]);
+
+  // swipe / drag support
+  const dragRef = useRef<{ downX: number; active: boolean }>({ downX: 0, active: false });
+  const onPointerDown = (e: React.PointerEvent) => {
+    dragRef.current = { downX: e.clientX, active: true };
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (!dragRef.current.active) return;
+    const dx = e.clientX - dragRef.current.downX;
+    dragRef.current.active = false;
+    const THRESH = 40;
+    if (dx > THRESH) go(-1);
+    else if (dx < -THRESH) go(+1);
+  };
+
+
+  // --------- Features renderer ----------
+  const FeaturesTable = ({ item }: { item: PositionItem }) => {
+    const feats = item.features ?? {};
+    const entries = Object.entries(feats);
+    if (!entries.length) return <div style={{ opacity: 0.7 }}>No features present.</div>;
+    return (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '140px 1fr',
+        gap: '6px 10px',
+        fontSize: 12,
+        background: 'rgba(255,255,255,0.06)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        padding: 10,
+        borderRadius: 8
+      }}>
+        {entries.map(([k, v]) => (
+          <FragmentRow key={k} k={k} v={v} />
+        ))}
+      </div>
+    );
+  };
+
+  const FragmentRow = ({ k, v }: { k: string; v: any }) => {
+    const value =
+      isNumber(v) ? formatNum(v as number)
+        : typeof v === 'boolean' ? (v ? 'true' : 'false')
+          : String(v ?? '');
+    return (
+      <>
+        <div style={{ opacity: 0.75 }}>{k}</div>
+        <div style={{ fontWeight: 600 }}>{value}</div>
+      </>
+    );
+  };
+
+  // ---------- tiny helpers ----------
+  const isNumber = (v: any) => typeof v === 'number' && Number.isFinite(v);
+  const formatNum = (v: number) => {
+    // Use fewer decimals for large values, 3 decimals for small floats
+    if (Math.abs(v) >= 1000) return Math.round(v).toString();
+    if (Math.abs(v) >= 10) return v.toFixed(2);
+    return v.toFixed(3);
+  };
+
   return (
     <div style={{
       position: 'absolute', right: 12, top: 12, zIndex: 1000,
-      width: '500px', maxHeight: '95vh', overflow: 'auto',
-      background: 'rgba(20,20,20,0.85)', padding: 12, borderRadius: 12, fontSize: 12
+      width: 560, maxHeight: '95vh', overflow: 'auto',
+      background: 'rgba(20,20,20,0.85)', padding: 12, borderRadius: 12, fontSize: 12,
+      display: 'flex', flexDirection: 'column', gap: 10
     }}>
-      <div style={{ fontWeight: 700, marginBottom: 8 }}>
-        Selected images ({items.length})
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontWeight: 700, flex: 1 }}>
+          Selected images {hasItems ? `(${idx + 1} / ${total})` : '(0)'}
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button
+            onClick={() => go(-1)}
+            disabled={!hasItems}
+            title="Prev (←)"
+            style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}
+          >◀</button>
+          <button
+            onClick={() => go(+1)}
+            disabled={!hasItems}
+            title="Next (→)"
+            style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}
+          >▶</button>
+        </div>
       </div>
-      {items.length === 0 ? (
-        <div style={{ opacity: 0.8, fontSize: 12 }}>
+
+      {!hasItems ? (
+        <div style={{ opacity: 0.8 }}>
           Click a dot to select, <b>Cmd/Ctrl-click</b> to add more.
+          Tip: Shift-drag on the plot to box-select multiple.
         </div>
       ) : (
-        <div style={{ display: 'grid', gap: 12 }}>
-          {items.map((it) => (
-            <div key={it.id} style={{ background: 'rgba(255,255,255,0.06)', padding: 8, borderRadius: 8 }}>
-              <div style={{ fontWeight: 600, marginBottom: 6 }}>#{it.id} — {it.metadata?.prediction?.category} · score {typeof it.metadata?.prediction?.score === 'number' ? it.metadata!.prediction!.score!.toFixed(3) : 'n/a'}</div>
-              <BBoxOverlay item={it} data={data} />
-              <div style={{ marginTop: 6, fontSize: 11, opacity: 0.9 }}>
-                <div><b>image</b>: {it.metadata?.image_name}</div>
-                <div><b>path</b>: <code style={{ fontSize: 11 }}>{it.metadata?.image_path}</code></div>
-                <div><b>bbox</b>: [{(it.metadata?.prediction?.bbox ?? []).join(', ')}]</div>
-              </div>
+        <div
+          onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          style={{ display: 'grid', gap: 10 }}
+        >
+          <div style={{ fontWeight: 600 }}>
+            #{current!.id} — {current!.metadata?.prediction?.category} · score {typeof current!.metadata?.prediction?.score === 'number' ? current!.metadata!.prediction!.score!.toFixed(3) : 'n/a'}
+          </div>
+
+
+
+          {/* Quick jump mini-index if you like */}
+          {total > 1 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+              {items.map((it, i) => (
+                <button
+                  key={it.id}
+                  onClick={() => setIdx(i)}
+                  title={`Go to ${i + 1}`}
+                  style={{
+                    width: 22, height: 22, borderRadius: 999,
+                    border: '1px solid #444', background: i === idx ? '#60a5fa' : '#2a2a2a',
+                    color: i === idx ? '#000' : '#bbb', fontSize: 11
+                  }}
+                >
+                  {i + 1}
+                </button>
+              ))}
             </div>
-          ))}
+          )}
+
+
+          <BBoxOverlay item={current!} data={data} />
+          <div style={{ fontSize: 11, opacity: 0.9 }}>
+            <div><b>image</b>: {current!.metadata?.image_name}</div>
+            <div><b>path</b>: <code style={{ fontSize: 11 }}>{current!.metadata?.image_path}</code></div>
+            <div><b>bbox</b>: [{(current!.metadata?.prediction?.bbox ?? []).join(', ')}]</div>
+          </div>
+
+          {/* NEW: Features */}
+          <div style={{ fontWeight: 700, marginTop: 6 }}>Features</div>
+          <FeaturesTable item={current!} />
+
         </div>
       )}
     </div>

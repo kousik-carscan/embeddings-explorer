@@ -5,6 +5,7 @@ import FileUploader from '../components/FileUploader';
 import ScatterPlot from '../components/ScatterPlot';
 import MultiPreviewPanel from '../components/MultiPreviewPanel';
 import type { PositionItem } from '../types';
+import ColorLegend from '../components/ColorLegend';
 
 export default function Explorer() {
   const { data, source, loadFromFile } = useData(null);
@@ -20,10 +21,11 @@ export default function Explorer() {
   const [status, setStatus] = useState<string>('');
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
-  // NEW: multi-select
+  // Multi-select
   const [selectedIdx, setSelectedIdx] = useState<number[]>([]);
+  const [selectionShape, setSelectionShape] = useState<'rect' | 'circle'>('rect');
 
-  // optional: cluster filter you already had (keep or remove as you like)
+  // Optional cluster filter
   const [clusterFilter, setClusterFilter] = useState<string | number | null>(null);
   const filteredPositions = useMemo(() => {
     if (colorMode !== 'cluster' || !clusterFilter?.toString?.()) return positions;
@@ -40,55 +42,58 @@ export default function Explorer() {
     return Array.from(s);
   }, [positions, scheme]);
 
-  // keep scheme consistent
+  const clusterDistribution = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of positions) {
+      const v = p.cluster_labels?.[scheme];
+      const key = v == null ? '(null)' : String(v);
+      m.set(key, (m.get(key) || 0) + 1);
+    }
+    return Array.from(m.entries()).sort((a, b) => b[1] - a[1]);
+  }, [positions, scheme]);
+
   React.useEffect(() => {
     if (!clusterKeys.length) { setScheme('dbscan'); setColorMode('score'); return; }
     if (!clusterKeys.includes(scheme)) setScheme(clusterKeys[0]);
   }, [clusterKeys.join('|')]);
 
-  // handle click selection from ScatterPlot
-  // const handleSelect = (idx: number | null, opts?: { append?: boolean; range?: boolean }) => {
-  //   const append = !!opts?.append;
-  //   if (idx == null) {
-  //     if (!append) setSelectedIdx([]); // clear on empty click (unless append)
-  //     return;
-  //   }
-  //   if (!append) {
-  //     setSelectedIdx([idx]);
-  //     return;
-  //   }
-  //   // toggle
-  //   setSelectedIdx(prev => {
-  //     if (prev.includes(idx)) return prev.filter(i => i !== idx);
-  //     return [...prev, idx];
-  //   });
-  // };
+  // Point click from scatter
+  const handleSelect = (idx: number | null, opts?: { append?: boolean; range?: boolean }) => {
+    const append = !!opts?.append;
+    if (idx == null) {
+      if (!append) setSelectedIdx([]);
+      return;
+    }
+    if (!append) { setSelectedIdx([idx]); return; }
+    // move to most-recent at the end
+    setSelectedIdx(prev => {
+      const without = prev.filter(i => i !== idx);
+      return [...without, idx];
+    });
+  };
 
-  // handle click selection from ScatterPlot
-const handleSelect = (idx: number | null, opts?: { append?: boolean; range?: boolean }) => {
-  const append = !!opts?.append;
-  if (idx == null) {
-    if (!append) setSelectedIdx([]); // clear on empty click (unless append)
-    return;
-  }
-  if (!append) {
-    setSelectedIdx([idx]); // replace selection
-    return;
-  }
-  // append/toggle; ensure the clicked one becomes "most recent" (at the end)
-  setSelectedIdx(prev => {
-    const without = prev.filter(i => i !== idx);
-    return [...without, idx];
-  });
-};
+  // Marquee result from scatter
+  const handleBoxSelect = (indices: number[], opts?: { append?: boolean }) => {
+    if (!indices.length) return;
+    const append = !!opts?.append;
+    if (!append) {
+      setSelectedIdx(indices); // replace
+    } else {
+      setSelectedIdx(prev => {
+        const s = new Set(prev);
+        // preserve order: first existing, then new in order
+        const merged = [...prev];
+        for (const i of indices) if (!s.has(i)) merged.push(i);
+        return merged;
+      });
+    }
+  };
 
-
-  // const selectedItems = useMemo(() => selectedIdx.map(i => filteredPositions[i]).filter(Boolean), [selectedIdx, filteredPositions]);
   const selectedItems = useMemo(
     () => selectedIdx.slice().reverse().map(i => filteredPositions[i]).filter(Boolean),
     [selectedIdx, filteredPositions]
   );
-  
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', color: '#e5e5e5' }}>
       <Controls
@@ -104,7 +109,6 @@ const handleSelect = (idx: number | null, opts?: { append?: boolean; range?: boo
             <button
               onClick={() => setSelectedIdx([])}
               style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}
-              title="Clear selected images"
             >
               Clear selection
             </button>
@@ -114,6 +118,9 @@ const handleSelect = (idx: number | null, opts?: { append?: boolean; range?: boo
         clusterFilter={clusterFilter}
         setClusterFilter={setClusterFilter}
         availableClusterValues={availableClusterValues}
+        selectionShape={selectionShape}
+        setSelectionShape={setSelectionShape}
+        clusterDistribution={clusterDistribution}
       />
 
       <ScatterPlot
@@ -124,9 +131,18 @@ const handleSelect = (idx: number | null, opts?: { append?: boolean; range?: boo
         setStatus={setStatus}
         onHover={(i) => setHoverIdx(i)}
         onSelect={handleSelect}
+        onBoxSelect={handleBoxSelect}            // NEW
+        selectionShape={selectionShape}          // NEW
       />
 
-      <MultiPreviewPanel data={data ?? null} items={selectedItems}  hoverIdx={hoverIdx} />
+      {/* Bottom-right legend */}
+      <ColorLegend
+        mode={colorMode as any}
+        scheme={scheme}
+        clusterValues={availableClusterValues}
+      />
+
+      <MultiPreviewPanel data={data ?? null} items={selectedItems} hoverIdx={hoverIdx} />
     </div>
   );
 }

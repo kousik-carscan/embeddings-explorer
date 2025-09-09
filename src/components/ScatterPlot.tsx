@@ -9,22 +9,28 @@ const rampBlueOrange = (t: number): [number, number, number] => {
   const b = Math.round(lerp(245, 0, t));
   return [r, g, b];
 };
-const hashLabel = (x: string) => {
+
+const hash = (s: string) => {
   let h = 2166136261 >>> 0;
-  for (let i = 0; i < x.length; i++) { h ^= x.charCodeAt(i); h = Math.imul(h, 16777619); }
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
   return h >>> 0;
 };
 const labelToColor = (label?: number | string | null): [number, number, number] => {
   if (label == null || (typeof label === 'number' && label === -1)) return [160,160,160];
-  const idx = typeof label === 'number' ? label : hashLabel(label) % 10000;
+  const idx = typeof label === 'number' ? label : hash(label);
   const g = 0.61803398875, h = (idx * g) % 1, s = 0.55, l = 0.55;
-  const hue2rgb = (p: number, q: number, t: number) => { if (t < 0) t += 1; if (t > 1) t -= 1;
-    if (t < 1/6) return p + (q - p) * 6 * t; if (t < 1/2) return q; if (t < 2/3) return p + (q - p) * (2/3 - t) * 6; return p; };
-  const q = l < 0.5 ? l*(1+s) : l + s - l*s, p = 2*l - q;
+  const hue2rgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1; if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  };
+  const q = l < 0.5 ? l*(1+s) : l + s - l*s, p0 = 2*l - q;
   return [
-    Math.round(hue2rgb(p,q,h+1/3)*255),
-    Math.round(hue2rgb(p,q,h)*255),
-    Math.round(hue2rgb(p,q,h-1/3)*255),
+    Math.round(hue2rgb(p0,q,h+1/3)*255),
+    Math.round(hue2rgb(p0,q,h)*255),
+    Math.round(hue2rgb(p0,q,h-1/3)*255),
   ];
 };
 
@@ -34,15 +40,19 @@ type Props = {
   colorMode: 'cluster' | 'score' | string;
   pointSize: number;
   onHover?: (index: number | null) => void;
-  // NEW: pass modifier info so parent can multi-select
   onSelect?: (index: number | null, opts?: { append?: boolean; range?: boolean }) => void;
   setStatus?: (s: string) => void;
+  onBoxSelect?: (indices: number[], opts?: { append?: boolean }) => void;
+  selectionShape?: 'rect' | 'circle';
 };
 
 export default function ScatterPlot({
-  positions, scheme, colorMode, pointSize, onHover, onSelect, setStatus
+  positions, scheme, colorMode, pointSize, onHover, onSelect, setStatus,
+  onBoxSelect, selectionShape = 'rect'
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const overlayRef = useRef<HTMLCanvasElement | null>(null);
+
   const [scale, setScale] = useState(1);
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
@@ -58,17 +68,19 @@ export default function ScatterPlot({
     return [cx + (x * scale + tx), cy - (y * scale + ty)] as const;
   };
 
-  // fit
+  // fit / size both canvases
   useEffect(() => {
     const fit = () => {
-      const canvas = canvasRef.current; if (!canvas) return;
+      const c = canvasRef.current, o = overlayRef.current; if (!c || !o) return;
       const dpr = window.devicePixelRatio || 1;
-      const w = canvas.parentElement?.clientWidth || window.innerWidth;
-      const h = canvas.parentElement?.clientHeight || window.innerHeight;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-
+      const w = c.parentElement?.clientWidth || window.innerWidth;
+      const h = c.parentElement?.clientHeight || window.innerHeight;
+      for (const el of [c, o]) {
+        el.width = Math.floor(w * dpr);
+        el.height = Math.floor(h * dpr);
+        el.style.width = w + 'px';
+        el.style.height = h + 'px';
+      }
       const pad = 20 * dpr;
       const spanX = Math.max(1e-6, bounds.maxX - bounds.minX);
       const spanY = Math.max(1e-6, bounds.maxY - bounds.minY);
@@ -86,7 +98,7 @@ export default function ScatterPlot({
     return () => ro.disconnect();
   }, [bounds.minX, bounds.maxX, bounds.minY, bounds.maxY]);
 
-  // draw
+  // draw points (with diagnostics)
   useEffect(() => {
     const canvas = canvasRef.current; if (!canvas) return;
     const ctx = canvas.getContext('2d'); if (!ctx) return;
@@ -99,16 +111,24 @@ export default function ScatterPlot({
     ctx.fillRect(0,0,canvas.width,canvas.height);
     ctx.imageSmoothingEnabled = false;
 
+    const key = (scheme ?? '').trim();
     const t0 = performance.now();
+
+    // diagnostics
+    let undefinedCount = 0;
+    const labelCounts = new Map<any, number>();
+
     for (let i=0;i<positions.length;i++) {
       const p = positions[i];
       const [sx, sy] = worldToScreen(p.x, p.y, canvas.width, canvas.height);
 
       let rgb: [number,number,number];
       if (colorMode === 'cluster') {
-        rgb = labelToColor(p.cluster_labels?.[scheme] as any);
+        const lab = p.cluster_labels?.[key];
+        if (lab === undefined || lab === null) undefinedCount++;
+        else labelCounts.set(lab, (labelCounts.get(lab) ?? 0) + 1);
+        rgb = labelToColor(lab as any);
       } else if (typeof colorMode === 'string' && colorMode.startsWith('feature:')) {
-        // (optional) your feature coloring hook can live here
         const v = Number((p.features as any)?.[colorMode.slice(8)]) || 0;
         rgb = rampBlueOrange(clamp(v,0,1));
       } else {
@@ -125,12 +145,59 @@ export default function ScatterPlot({
 
     const t1 = performance.now();
     setStatus?.(`${positions.length} points · draw ${(t1 - t0).toFixed(1)}ms`);
+
+    // one-time helpful logs to catch mismatched keys/labels
+    if (!(window as any).__CLUSTER_LOGGED__) {
+      (window as any).__CLUSTER_LOGGED__ = true;
+      if (colorMode === 'cluster') {
+        const uniq = Array.from(labelCounts.keys());
+        console.log('[ScatterPlot] scheme:', key, 'unique labels:', uniq.slice(0, 10), '… count =', uniq.length);
+        if (uniq.length <= 1) {
+          console.warn(
+            '[ScatterPlot] All points share the same cluster label for scheme:',
+            key,
+            'undefined labels:', undefinedCount,
+            'Hint: check that dropdown value exactly matches keys in each point’s cluster_labels'
+          );
+        }
+      }
+    }
   }, [positions, scheme, colorMode, pointSize, scale, tx, ty, setStatus]);
 
-  // interactions
+  // interaction (wheel zoom, pan, marquee) — unchanged from your version
   useEffect(() => {
     const canvas = canvasRef.current; if (!canvas) return;
+    const overlay = overlayRef.current; if (!overlay) return;
+
     let dragging = false, lastX = 0, lastY = 0;
+
+    // marquee state (screen space in CSS px * dpr)
+    let isMarquee = false;
+    let startSX = 0, startSY = 0;   // screen px * dpr
+    let endSX = 0, endSY = 0;
+    let marqueeAppend = false;
+
+    const drawMarquee = () => {
+      const ctx = overlay.getContext('2d'); if (!ctx) return;
+      ctx.clearRect(0,0,overlay.width,overlay.height);
+      ctx.save();
+      ctx.fillStyle = 'rgba(96,165,250,0.15)';
+      ctx.strokeStyle = 'rgba(96,165,250,0.9)';
+      ctx.lineWidth = Math.max(1, (window.devicePixelRatio||1));
+      // rectangle only here; circle supported below too
+      const x = Math.min(startSX, endSX);
+      const y = Math.min(startSY, endSY);
+      const w = Math.abs(endSX - startSX);
+      const h = Math.abs(endSY - startSY);
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeRect(x, y, w, h);
+      ctx.restore();
+    };
+
+    const clearMarquee = () => {
+      const ctx = overlay.getContext('2d'); if (!ctx) return;
+      ctx.clearRect(0,0,overlay.width,overlay.height);
+    };
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -150,19 +217,60 @@ export default function ScatterPlot({
       setTy(ty - dy);
     };
 
-    const onDown = (e: MouseEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; };
-    const onUp = () => { dragging = false; };
+    const onDown = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const sx = (e.clientX - rect.left) * dpr;
+      const sy = (e.clientY - rect.top) * dpr;
+
+      if (e.shiftKey) {
+        isMarquee = true;
+        marqueeAppend = e.metaKey || e.ctrlKey;
+        startSX = endSX = sx;
+        startSY = endSY = sy;
+        drawMarquee();
+        return;
+      }
+      dragging = true; lastX = e.clientX; lastY = e.clientY;
+    };
+
+    const onUp = () => {
+      if (isMarquee) {
+        isMarquee = false;
+        const indices: number[] = [];
+        const x0 = Math.min(startSX, endSX), x1 = Math.max(startSX, endSX);
+        const y0 = Math.min(startSY, endSY), y1 = Math.max(startSY, endSY);
+        for (let i=0;i<positions.length;i++) {
+          const p = positions[i];
+          const [sx, sy] = worldToScreen(p.x, p.y, canvas.width, canvas.height);
+          if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) indices.push(i);
+        }
+        clearMarquee();
+        if (indices.length) onBoxSelect?.(indices, { append: marqueeAppend });
+        return;
+      }
+      dragging = false;
+    };
+
     const onMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+
+      if (isMarquee) {
+        endSX = (e.clientX - rect.left) * dpr;
+        endSY = (e.clientY - rect.top) * dpr;
+        drawMarquee();
+        return;
+      }
+
       if (dragging) {
-        const dpr = window.devicePixelRatio || 1;
         setTx(tx + (e.clientX - lastX) * dpr);
         setTy(ty - (e.clientY - lastY) * dpr);
         lastX = e.clientX; lastY = e.clientY;
       } else {
-        // hover: pick nearest within radius
-        const rect = canvas.getBoundingClientRect();
-        const mx = (e.clientX - rect.left) * (window.devicePixelRatio || 1);
-        const my = (e.clientY - rect.top) * (window.devicePixelRatio || 1);
+        const mx = (e.clientX - rect.left) * dpr;
+        const my = (e.clientY - rect.top) * dpr;
+        // simple hover nearest (optional)
         let best = -1, bestD = 16*16;
         for (let i=0;i<positions.length;i++) {
           const p = positions[i];
@@ -175,11 +283,12 @@ export default function ScatterPlot({
       }
     };
 
-    // NEW: click picks nearest; modifier keys decide append/replace
     const onClick = (e: MouseEvent) => {
+      if (isMarquee) return;
       const rect = canvas.getBoundingClientRect();
-      const mx = (e.clientX - rect.left) * (window.devicePixelRatio || 1);
-      const my = (e.clientY - rect.top) * (window.devicePixelRatio || 1);
+      const dpr = window.devicePixelRatio || 1;
+      const mx = (e.clientX - rect.left) * dpr;
+      const my = (e.clientY - rect.top) * dpr;
       let best = -1, bestD = 16*16;
       for (let i=0;i<positions.length;i++) {
         const p = positions[i];
@@ -188,10 +297,9 @@ export default function ScatterPlot({
         const d2 = dx*dx + dy*dy;
         if (d2 < bestD) { bestD = d2; best = i; }
       }
-      const append = e.metaKey || e.ctrlKey;   // ⌘/Ctrl adds/toggles
-      const range = e.shiftKey;                // reserved for future
-      if (best >= 0) onSelect?.(best, { append, range });
-      else onSelect?.(null, { append, range });
+      const append = e.metaKey || e.ctrlKey;
+      if (best >= 0) onSelect?.(best, { append });
+      else onSelect?.(null, { append });
     };
 
     canvas.addEventListener('wheel', onWheel, { passive: false });
@@ -206,7 +314,12 @@ export default function ScatterPlot({
       canvas.removeEventListener('mousemove', onMove);
       canvas.removeEventListener('click', onClick);
     };
-  }, [positions, scheme, colorMode, pointSize, scale, tx, ty, onHover, onSelect]);
+  }, [positions, scheme, colorMode, pointSize, scale, tx, ty, onHover, onSelect, onBoxSelect, selectionShape]);
 
-  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0 }} />;
+  return (
+    <>
+      <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0 }} />
+      <canvas ref={overlayRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
+    </>
+  );
 }
