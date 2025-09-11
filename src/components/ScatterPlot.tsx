@@ -9,28 +9,17 @@ const rampBlueOrange = (t: number): [number, number, number] => {
   const b = Math.round(lerp(245, 0, t));
   return [r, g, b];
 };
-
-const hash = (s: string) => {
-  let h = 2166136261 >>> 0;
-  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return h >>> 0;
-};
+const hash = (s: string) => { let h = 2166136261 >>> 0; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 const labelToColor = (label?: number | string | null): [number, number, number] => {
-  if (label == null || (typeof label === 'number' && label === -1)) return [160,160,160];
+  if (label == null || (typeof label === 'number' && label === -1)) return [160, 160, 160];
   const idx = typeof label === 'number' ? label : hash(label);
   const g = 0.61803398875, h = (idx * g) % 1, s = 0.55, l = 0.55;
-  const hue2rgb = (p: number, q: number, t: number) => {
-    if (t < 0) t += 1; if (t > 1) t -= 1;
-    if (t < 1/6) return p + (q - p) * 6 * t;
-    if (t < 1/2) return q;
-    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-    return p;
-  };
-  const q = l < 0.5 ? l*(1+s) : l + s - l*s, p0 = 2*l - q;
+  const hue2rgb = (p: number, q: number, t: number) => { if (t < 0) t += 1; if (t > 1) t -= 1; if (t < 1 / 6) return p + (q - p) * 6 * t; if (t < 1 / 2) return q; if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6; return p; };
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p0 = 2 * l - q;
   return [
-    Math.round(hue2rgb(p0,q,h+1/3)*255),
-    Math.round(hue2rgb(p0,q,h)*255),
-    Math.round(hue2rgb(p0,q,h-1/3)*255),
+    Math.round(hue2rgb(p0, q, h + 1 / 3) * 255),
+    Math.round(hue2rgb(p0, q, h) * 255),
+    Math.round(hue2rgb(p0, q, h - 1 / 3) * 255),
   ];
 };
 
@@ -46,6 +35,11 @@ type Props = {
   selectionShape?: 'rect' | 'circle';
 };
 
+const UI_SYNC_MS = 80;
+const CAMERA_LERP = 0.22;
+const INERTIA_DECAY = 0.92;
+const PICK_R2 = 16 * 16;
+
 export default function ScatterPlot({
   positions, scheme, colorMode, pointSize, onHover, onSelect, setStatus,
   onBoxSelect, selectionShape = 'rect'
@@ -53,9 +47,30 @@ export default function ScatterPlot({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [scale, setScale] = useState(1);
-  const [tx, setTx] = useState(0);
-  const [ty, setTy] = useState(0);
+  // UI mirrors (read-only for display; camera uses refs)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [, setScale] = useState(1);
+  const [, setTx] = useState(0);
+  const [, setTy] = useState(0);
+
+  // Camera CURRENT values (read by draw)
+  const scaleRef = useRef(1);
+  const txRef = useRef(0);
+  const tyRef = useRef(0);
+
+  // Camera TARGET values (written by interactions)
+  const targetScaleRef = useRef(1);
+  const targetTxRef = useRef(0);
+  const targetTyRef = useRef(0);
+
+  // Velocity for inertia
+  const vxRef = useRef(0);
+  const vyRef = useRef(0);
+
+  // anim loop
+  const animatingRef = useRef(false);
+  const lastUiSyncRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
 
   const bounds = useMemo(() => {
     if (!positions.length) return { minX: -1, maxX: 1, minY: -1, maxY: 1 };
@@ -64,11 +79,15 @@ export default function ScatterPlot({
   }, [positions]);
 
   const worldToScreen = (x: number, y: number, w: number, h: number) => {
-    const cx = w/2, cy = h/2;
-    return [cx + (x * scale + tx), cy - (y * scale + ty)] as const;
+    const cx = w / 2, cy = h / 2;
+    return [cx + (x * scaleRef.current + txRef.current), cy - (y * scaleRef.current + tyRef.current)] as const;
+  };
+  const screenToWorld = (sx: number, sy: number, w: number, h: number) => {
+    const cx = w / 2, cy = h / 2;
+    return [((sx - cx) - txRef.current) / scaleRef.current, -(((sy - cy) - tyRef.current) / scaleRef.current)] as const;
   };
 
-  // fit / size both canvases
+  // size & initial fit
   useEffect(() => {
     const fit = () => {
       const c = canvasRef.current, o = overlayRef.current; if (!c || !o) return;
@@ -80,17 +99,25 @@ export default function ScatterPlot({
         el.height = Math.floor(h * dpr);
         el.style.width = w + 'px';
         el.style.height = h + 'px';
+        (el.style as any).touchAction = 'none';
+        (el.style as any).cursor = 'grab';
       }
       const pad = 20 * dpr;
       const spanX = Math.max(1e-6, bounds.maxX - bounds.minX);
       const spanY = Math.max(1e-6, bounds.maxY - bounds.minY);
-      const sX = (w * dpr - 2 * pad) / spanX;
-      const sY = (h * dpr - 2 * pad) / spanY;
+      const sX = (c.width - 2 * pad) / spanX;
+      const sY = (c.height - 2 * pad) / spanY;
       const s = Math.min(sX, sY);
-      setScale(s);
       const cx = (bounds.maxX + bounds.minX) / 2;
       const cy = (bounds.maxY + bounds.minY) / 2;
-      setTx(-cx * s); setTy(-cy * s);
+
+      // start settled
+      scaleRef.current = targetScaleRef.current = s;
+      txRef.current = targetTxRef.current = -cx * s;
+      tyRef.current = targetTyRef.current = -cy * s;
+
+      setScale(s); setTx(txRef.current); setTy(tyRef.current);
+      requestFrame();
     };
     fit();
     const ro = new ResizeObserver(fit);
@@ -98,39 +125,34 @@ export default function ScatterPlot({
     return () => ro.disconnect();
   }, [bounds.minX, bounds.maxX, bounds.minY, bounds.maxY]);
 
-  // draw points (with diagnostics)
-  useEffect(() => {
+  // draw
+  const draw = () => {
     const canvas = canvasRef.current; if (!canvas) return;
     const ctx = canvas.getContext('2d'); if (!ctx) return;
     const dpr = window.devicePixelRatio || 1;
 
     ctx.save();
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.imageSmoothingEnabled = false;
 
     const key = (scheme ?? '').trim();
     const t0 = performance.now();
+    const R = Math.max(1.5, pointSize) * dpr;
 
-    // diagnostics
-    let undefinedCount = 0;
-    const labelCounts = new Map<any, number>();
-
-    for (let i=0;i<positions.length;i++) {
+    for (let i = 0; i < positions.length; i++) {
       const p = positions[i];
       const [sx, sy] = worldToScreen(p.x, p.y, canvas.width, canvas.height);
+      if (sx < -R || sy < -R || sx > canvas.width + R || sy > canvas.height + R) continue;
 
-      let rgb: [number,number,number];
+      let rgb: [number, number, number];
       if (colorMode === 'cluster') {
-        const lab = p.cluster_labels?.[key];
-        if (lab === undefined || lab === null) undefinedCount++;
-        else labelCounts.set(lab, (labelCounts.get(lab) ?? 0) + 1);
-        rgb = labelToColor(lab as any);
+        rgb = labelToColor(p.cluster_labels?.[key] as any);
       } else if (typeof colorMode === 'string' && colorMode.startsWith('feature:')) {
         const v = Number((p.features as any)?.[colorMode.slice(8)]) || 0;
-        rgb = rampBlueOrange(clamp(v,0,1));
+        rgb = rampBlueOrange(clamp(v, 0, 1));
       } else {
         const s = clamp(p.metadata?.prediction?.score ?? (p as any)?.features?.score ?? 0, 0, 1);
         rgb = rampBlueOrange(s);
@@ -138,121 +160,202 @@ export default function ScatterPlot({
 
       ctx.fillStyle = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
       ctx.beginPath();
-      ctx.arc(sx, sy, Math.max(1.5, pointSize) * dpr, 0, Math.PI*2);
+      ctx.arc(sx, sy, R, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
 
-    const t1 = performance.now();
-    setStatus?.(`${positions.length} points · draw ${(t1 - t0).toFixed(1)}ms`);
-
-    // one-time helpful logs to catch mismatched keys/labels
-    if (!(window as any).__CLUSTER_LOGGED__) {
-      (window as any).__CLUSTER_LOGGED__ = true;
-      if (colorMode === 'cluster') {
-        const uniq = Array.from(labelCounts.keys());
-        console.log('[ScatterPlot] scheme:', key, 'unique labels:', uniq.slice(0, 10), '… count =', uniq.length);
-        if (uniq.length <= 1) {
-          console.warn(
-            '[ScatterPlot] All points share the same cluster label for scheme:',
-            key,
-            'undefined labels:', undefinedCount,
-            'Hint: check that dropdown value exactly matches keys in each point’s cluster_labels'
-          );
-        }
-      }
+    const dt = performance.now() - t0;
+    const now = performance.now();
+    if (!lastUiSyncRef.current || now - lastUiSyncRef.current > 120) {
+      setStatus?.(`${positions.length} points · draw ${dt.toFixed(1)}ms`);
+      lastUiSyncRef.current = now;
     }
-  }, [positions, scheme, colorMode, pointSize, scale, tx, ty, setStatus]);
+  };
 
-  // interaction (wheel zoom, pan, marquee) — unchanged from your version
+  // animation loop: ease current camera -> target camera
+  const tick = () => {
+    scaleRef.current = lerp(scaleRef.current, targetScaleRef.current, CAMERA_LERP);
+    txRef.current = lerp(txRef.current, targetTxRef.current, CAMERA_LERP);
+    tyRef.current = lerp(tyRef.current, targetTyRef.current, CAMERA_LERP);
+
+    draw();
+
+    const done =
+      Math.abs(scaleRef.current - targetScaleRef.current) < 0.02 &&
+      Math.abs(txRef.current - targetTxRef.current) < 0.5 &&
+      Math.abs(tyRef.current - targetTyRef.current) < 0.5;
+
+    const now = performance.now();
+    if (!lastUiSyncRef.current || now - lastUiSyncRef.current > UI_SYNC_MS) {
+      setScale(scaleRef.current); setTx(txRef.current); setTy(tyRef.current);
+      lastUiSyncRef.current = now;
+    }
+
+    if (!done) {
+      rafRef.current = requestAnimationFrame(tick);
+    } else {
+      animatingRef.current = false;
+      rafRef.current = null;
+    }
+  };
+
+  const requestFrame = () => {
+    if (animatingRef.current) return;
+    animatingRef.current = true;
+    rafRef.current = requestAnimationFrame(tick);
+  };
+
+  // interactions
   useEffect(() => {
-    const canvas = canvasRef.current; if (!canvas) return;
-    const overlay = overlayRef.current; if (!overlay) return;
+    const canvas = canvasRef.current, overlay = overlayRef.current;
+    if (!canvas || !overlay) return;
 
-    let dragging = false, lastX = 0, lastY = 0;
+    let panning = false;
+    let lastX = 0, lastY = 0;
+    let moved = false;
 
-    // marquee state (screen space in CSS px * dpr)
-    let isMarquee = false;
-    let startSX = 0, startSY = 0;   // screen px * dpr
-    let endSX = 0, endSY = 0;
-    let marqueeAppend = false;
+    // marquee
+    let isMarquee = false, append = false;
+    let startSX = 0, startSY = 0, endSX = 0, endSY = 0;
 
     const drawMarquee = () => {
       const ctx = overlay.getContext('2d'); if (!ctx) return;
-      ctx.clearRect(0,0,overlay.width,overlay.height);
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
       ctx.save();
       ctx.fillStyle = 'rgba(96,165,250,0.15)';
       ctx.strokeStyle = 'rgba(96,165,250,0.9)';
-      ctx.lineWidth = Math.max(1, (window.devicePixelRatio||1));
-      // rectangle only here; circle supported below too
-      const x = Math.min(startSX, endSX);
-      const y = Math.min(startSY, endSY);
-      const w = Math.abs(endSX - startSX);
-      const h = Math.abs(endSY - startSY);
-      ctx.fillRect(x, y, w, h);
-      ctx.strokeRect(x, y, w, h);
+      ctx.lineWidth = Math.max(1, (window.devicePixelRatio || 1));
+      if (selectionShape === 'rect') {
+        const x = Math.min(startSX, endSX), y = Math.min(startSY, endSY);
+        const w = Math.abs(endSX - startSX), h = Math.abs(endSY - startSY);
+        ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+      } else {
+        const cx = (startSX + endSX) / 2, cy = (startSY + endSY) / 2;
+        const r = Math.max(Math.abs(endSX - startSX), Math.abs(endSY - startSY)) / 2;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      }
       ctx.restore();
     };
+    const clearMarquee = () => { const ctx = overlay.getContext('2d'); if (ctx) ctx.clearRect(0, 0, overlay.width, overlay.height); };
 
-    const clearMarquee = () => {
-      const ctx = overlay.getContext('2d'); if (!ctx) return;
-      ctx.clearRect(0,0,overlay.width,overlay.height);
-    };
+    // ---- WHEEL: pan by default, zoom with ctrl/alt/meta (or enable mouse-wheel zoom heuristic below) ----
+    // const onWheel = (e: WheelEvent) => {
+    //   e.preventDefault();
+
+    //   const rect = canvas.getBoundingClientRect();
+    //   const dpr = window.devicePixelRatio || 1;
+
+    //   const toPx = (v: number) => (e.deltaMode === 1 ? v * 16 : v);
+    //   const dxPx = toPx(e.deltaX) * dpr;
+    //   const dyPx = toPx(e.deltaY) * dpr;
+
+    //   // Zoom when pinch (ctrl on macOS) or Alt/Meta pressed:
+    //   // If you also want plain mouse wheel to zoom, add the heuristic:
+    //   // const likelyMouseWheel = Math.abs(dxPx) < 0.5 && Math.abs(dyPx) >= 20;
+    //   // const doZoom = e.ctrlKey || e.altKey || e.metaKey || likelyMouseWheel;
+    //   const doZoom = e.ctrlKey || e.altKey || e.metaKey;
+
+    //   if (!doZoom) {
+    //     // --- PAN ---
+    //     const boost = Math.max(0.7, Math.min(2.0, 1.0 / Math.sqrt(targetScaleRef.current)));
+    //     targetTxRef.current -= dxPx * boost;
+    //     targetTyRef.current -= dyPx * boost;
+    //     requestFrame();
+    //     return;
+    //   }
+
+    //   // --- ZOOM around cursor ---
+    //   const mx = (e.clientX - rect.left) * dpr;
+    //   const my = (e.clientY - rect.top) * dpr;
+
+    //   const [wx, wy] = screenToWorld(mx, my, canvas.width, canvas.height);
+
+    //   const dy = Math.max(-0.5, Math.min(0.5, toPx(e.deltaY) / 500));
+    //   const factor = Math.exp(-dy);
+
+    //   const curScale = targetScaleRef.current;
+    //   const newScale = Math.max(0.05, Math.min(4000, curScale * factor));
+
+    //   const ds = newScale - curScale;
+    //   targetScaleRef.current = newScale;
+    //   targetTxRef.current -= wx * ds;
+    //   targetTyRef.current -= wy * ds;
+
+    //   requestFrame();
+    // };
+
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+    
+      const canvas = canvasRef.current!;
       const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
       const dpr = window.devicePixelRatio || 1;
-      const cx = canvas.width / 2, cy = canvas.height / 2;
-      const wx = ((mx * dpr - cx) - tx) / scale;
-      const wy = -(((my * dpr - cy) - ty) / scale);
-      const factor = e.deltaY < 0 ? 1.1 : 0.9;
-      const newScale = Math.max(0.1, Math.min(1000, scale * factor));
-      const dx = wx * (newScale - scale);
-      const dy = wy * (newScale - scale);
-      setScale(newScale);
-      setTx(tx - dx);
-      setTy(ty - dy);
+    
+      const toPx = (v: number) => (e.deltaMode === 1 ? v * 16 : v);
+      const dxPx = toPx(e.deltaX) * dpr;
+      const dyPx = toPx(e.deltaY) * dpr;
+    
+      // --- Decide PAN vs ZOOM ---
+      // Pinch (mac) or explicit keys still zoom:
+      const pinchZoom = e.ctrlKey;
+      const explicitZoom = e.altKey || e.metaKey;
+      // Heuristic: a mouse wheel is usually vertical steps with ~0 horizontal.
+      const likelyMouseWheel = !pinchZoom && !explicitZoom && Math.abs(dxPx) < 0.5 && Math.abs(dyPx) >= 1;
+    
+      const doZoom = pinchZoom || explicitZoom || likelyMouseWheel;
+    
+      if (!doZoom) {
+        // --- PAN (trackpad two-finger scroll) ---
+        const boost = Math.max(0.7, Math.min(2.0, 1.0 / Math.sqrt(targetScaleRef.current)));
+        targetTxRef.current -= dxPx * boost;
+        targetTyRef.current -= dyPx * boost;
+        requestFrame();
+        return;
+      }
+    
+      // --- ZOOM (around cursor) ---
+      const mx = (e.clientX - rect.left) * dpr;
+      const my = (e.clientY - rect.top) * dpr;
+    
+      const [wx, wy] = screenToWorld(mx, my, canvas.width, canvas.height);
+    
+      // Adjust 500 to tune sensitivity; lower = faster zoom
+      const dy = Math.max(-0.5, Math.min(0.5, toPx(e.deltaY) / 500));
+      const factor = Math.exp(-dy);
+    
+      const curScale = targetScaleRef.current;
+      const newScale = Math.max(0.05, Math.min(4000, curScale * factor));
+    
+      const ds = newScale - curScale;
+      targetScaleRef.current = newScale;
+      targetTxRef.current -= wx * ds;
+      targetTyRef.current -= wy * ds;
+    
+      requestFrame();
     };
+    
 
-    const onDown = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const sx = (e.clientX - rect.left) * dpr;
-      const sy = (e.clientY - rect.top) * dpr;
-
+    const onPointerDown = (e: PointerEvent) => {
+      // marquee with Shift
       if (e.shiftKey) {
-        isMarquee = true;
-        marqueeAppend = e.metaKey || e.ctrlKey;
-        startSX = endSX = sx;
-        startSY = endSY = sy;
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        startSX = endSX = (e.clientX - rect.left) * dpr;
+        startSY = endSY = (e.clientY - rect.top) * dpr;
+        isMarquee = true; append = e.metaKey || e.ctrlKey;
         drawMarquee();
         return;
       }
-      dragging = true; lastX = e.clientX; lastY = e.clientY;
+      panning = true; moved = false;
+      lastX = e.clientX; lastY = e.clientY;
+      vxRef.current = 0; vyRef.current = 0;
+      try { canvas.setPointerCapture(e.pointerId); } catch {}
+      (canvas.style as any).cursor = 'grabbing';
     };
 
-    const onUp = () => {
-      if (isMarquee) {
-        isMarquee = false;
-        const indices: number[] = [];
-        const x0 = Math.min(startSX, endSX), x1 = Math.max(startSX, endSX);
-        const y0 = Math.min(startSY, endSY), y1 = Math.max(startSY, endSY);
-        for (let i=0;i<positions.length;i++) {
-          const p = positions[i];
-          const [sx, sy] = worldToScreen(p.x, p.y, canvas.width, canvas.height);
-          if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) indices.push(i);
-        }
-        clearMarquee();
-        if (indices.length) onBoxSelect?.(indices, { append: marqueeAppend });
-        return;
-      }
-      dragging = false;
-    };
-
-    const onMove = (e: MouseEvent) => {
+    const onPointerMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
 
@@ -263,58 +366,117 @@ export default function ScatterPlot({
         return;
       }
 
-      if (dragging) {
-        setTx(tx + (e.clientX - lastX) * dpr);
-        setTy(ty - (e.clientY - lastY) * dpr);
+      if (panning) {
+        const dxClient = e.clientX - lastX, dyClient = e.clientY - lastY;
         lastX = e.clientX; lastY = e.clientY;
+        moved = moved || Math.abs(dxClient) + Math.abs(dyClient) > 0;
+
+        const dx = dxClient * dpr, dy = dyClient * dpr;
+        vxRef.current = lerp(vxRef.current, dx, 0.5);
+        vyRef.current = lerp(vyRef.current, -dy, 0.5);
+
+        targetTxRef.current += dx;
+        targetTyRef.current -= dy;
+
+        requestFrame();
       } else {
+        // hover
         const mx = (e.clientX - rect.left) * dpr;
         const my = (e.clientY - rect.top) * dpr;
-        // simple hover nearest (optional)
-        let best = -1, bestD = 16*16;
-        for (let i=0;i<positions.length;i++) {
+        let best = -1, bestD = PICK_R2;
+        for (let i = 0; i < positions.length; i++) {
           const p = positions[i];
           const [sx, sy] = worldToScreen(p.x, p.y, canvas.width, canvas.height);
-          const dx = sx - mx, dy = sy - my;
-          const d2 = dx*dx + dy*dy;
+          const dx = sx - mx, dy = sy - my, d2 = dx * dx + dy * dy;
           if (d2 < bestD) { bestD = d2; best = i; }
         }
         onHover?.(best >= 0 ? best : null);
       }
     };
 
+    const onPointerUp = (_e: PointerEvent) => {
+      if (isMarquee) {
+        isMarquee = false;
+        const indices: number[] = [];
+        if (selectionShape === 'rect') {
+          const x0 = Math.min(startSX, endSX), x1 = Math.max(startSX, endSX);
+          const y0 = Math.min(startSY, endSY), y1 = Math.max(startSY, endSY);
+          for (let i = 0; i < positions.length; i++) {
+            const [sx, sy] = worldToScreen(positions[i].x, positions[i].y, canvas.width, canvas.height);
+            if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) indices.push(i);
+          }
+        } else {
+          const cx = (startSX + endSX) / 2, cy = (startSY + endSY) / 2;
+          const r = Math.max(Math.abs(endSX - startSX), Math.abs(endSY - startSY)) / 2, r2 = r * r;
+          for (let i = 0; i < positions.length; i++) {
+            const [sx, sy] = worldToScreen(positions[i].x, positions[i].y, canvas.width, canvas.height);
+            const dx = sx - cx, dy = sy - cy; if (dx * dx + dy * dy <= r2) indices.push(i);
+          }
+        }
+        clearMarquee();
+        if (indices.length) onBoxSelect?.(indices, { append });
+        return;
+      }
+
+      if (!panning) return;
+      panning = false;
+      (canvas.style as any).cursor = 'grab';
+
+      // inertia
+      const stepInertia = () => {
+        vxRef.current *= INERTIA_DECAY;
+        vyRef.current *= INERTIA_DECAY;
+        if (Math.abs(vxRef.current) < 0.1 && Math.abs(vyRef.current) < 0.1) return false;
+        targetTxRef.current += vxRef.current;
+        targetTyRef.current += vyRef.current;
+        requestFrame();
+        return true;
+      };
+      const run = () => { if (stepInertia()) requestAnimationFrame(run); };
+      requestAnimationFrame(run);
+    };
+
+    const onPointerLeave = () => {
+      // safety: end panning if pointer leaves canvas
+      panning = false;
+      (canvas.style as any).cursor = 'grab';
+    };
+
     const onClick = (e: MouseEvent) => {
-      if (isMarquee) return;
+      if (panning || isMarquee || moved) { moved = false; return; }
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      const mx = (e.clientX - rect.left) * dpr;
-      const my = (e.clientY - rect.top) * dpr;
-      let best = -1, bestD = 16*16;
-      for (let i=0;i<positions.length;i++) {
-        const p = positions[i];
-        const [sx, sy] = worldToScreen(p.x, p.y, canvas.width, canvas.height);
-        const dx = sx - mx, dy = sy - my;
-        const d2 = dx*dx + dy*dy;
+      const mx = (e.clientX - rect.left) * dpr, my = (e.clientY - rect.top) * dpr;
+      let best = -1, bestD = PICK_R2;
+      for (let i = 0; i < positions.length; i++) {
+        const [sx, sy] = worldToScreen(positions[i].x, positions[i].y, canvas.width, canvas.height);
+        const dx = sx - mx, dy = sy - my, d2 = dx * dx + dy * dy;
         if (d2 < bestD) { bestD = d2; best = i; }
       }
-      const append = e.metaKey || e.ctrlKey;
-      if (best >= 0) onSelect?.(best, { append });
-      else onSelect?.(null, { append });
+      const appendSel = (e.metaKey || e.ctrlKey);
+      if (best >= 0) onSelect?.(best, { append: appendSel });
+      else onSelect?.(null, { append: appendSel });
     };
 
     canvas.addEventListener('wheel', onWheel, { passive: false });
-    canvas.addEventListener('mousedown', onDown);
-    window.addEventListener('mouseup', onUp);
-    canvas.addEventListener('mousemove', onMove);
-    canvas.addEventListener('click', onClick);
+    canvas.addEventListener('pointerdown', onPointerDown as any, { passive: false });
+    canvas.addEventListener('pointermove', onPointerMove as any, { passive: false });
+    canvas.addEventListener('pointerup', onPointerUp as any, { passive: false });
+    canvas.addEventListener('pointerleave', onPointerLeave as any, { passive: false });
+    canvas.addEventListener('click', onClick as any);
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     return () => {
-      canvas.removeEventListener('wheel', onWheel);
-      canvas.removeEventListener('mousedown', onDown);
-      window.removeEventListener('mouseup', onUp);
-      canvas.removeEventListener('mousemove', onMove);
-      canvas.removeEventListener('click', onClick);
+      canvas.removeEventListener('wheel', onWheel as any);
+      canvas.removeEventListener('pointerdown', onPointerDown as any);
+      canvas.removeEventListener('pointermove', onPointerMove as any);
+      canvas.removeEventListener('pointerup', onPointerUp as any);
+      canvas.removeEventListener('pointerleave', onPointerLeave as any);
+      canvas.removeEventListener('click', onClick as any);
     };
-  }, [positions, scheme, colorMode, pointSize, scale, tx, ty, onHover, onSelect, onBoxSelect, selectionShape]);
+  }, [positions, scheme, colorMode, pointSize, selectionShape, onHover, onSelect, onBoxSelect]);
+
+  // re-draw when inputs (non-camera) change
+  useEffect(() => { requestFrame(); }, [positions, scheme, colorMode, pointSize]);
 
   return (
     <>
