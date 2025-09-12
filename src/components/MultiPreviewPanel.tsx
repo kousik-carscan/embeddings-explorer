@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Dataset, PositionItem } from '../types';
+import { Eye, EyeOff } from 'lucide-react';
 
 type Props = {
   data: Dataset | null;
-  items: PositionItem[]; // already selected items
+  items: PositionItem[];      // already selected items
   hoverIdx: number | null;
 };
 
@@ -13,19 +14,31 @@ type Box = {
   kind: 'prediction' | 'annotation';
 };
 
-function getPreviewSrc(item: PositionItem | null): string | null {
-  if (!item) return null;
-  const p = item.metadata?.image_path || '';
-  if (p && /^https?:\/\//i.test(p)) return p;
-  return '/annotation-images/1.jpeg';
+// function getPreviewSrc(item: PositionItem | null): string | null {
+//   if (!item) return null;
+//   const p = item.metadata?.image_path || '';
+//   // if (p && /^https?:\/\//i.test(p)) return p;
+//   // return '/annotation-images/1.jpeg';
+//   return p;
+// }
+
+function getPreviewSrc(item) {
+  const p = item?.metadata?.image_path || '';
+  if (/^https?:\/\//i.test(p)) return p;
+  if (/^[A-Za-z]:[\\/]/.test(p) || p.startsWith('\\\\')) {
+    return `/img?path=${encodeURIComponent(p)}`; // your proxy
+  }
+  return p; // already a server path like /annotation-images/...
 }
 
-// -------- BBox overlay (unchanged logic) --------
+
+/* ---------------- BBox overlay with per-box eye toggles ---------------- */
 function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null }) {
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [dim, setDim] = useState({ w: 0, h: 0, naturalW: 0, naturalH: 0 });
 
-  const boxes: Box[] = useMemo(() => {
+  // Build boxes array: prediction + all annotations for the same image_id
+  const boxes = useMemo<Box[]>(() => {
     const arr: Box[] = [];
     const pred = item.metadata?.prediction;
     if (pred?.bbox?.length === 4) {
@@ -49,6 +62,13 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
     return arr;
   }, [item, data]);
 
+  // Visibility state: one boolean per box (defaults to all visible)
+  const [visible, setVisible] = useState<boolean[]>([]);
+  useEffect(() => {
+    setVisible(new Array(boxes.length).fill(true));
+  }, [boxes.length, item?.id]);
+
+  // Image sizing for overlay scaling
   useEffect(() => {
     const el = imgRef.current; if (!el) return;
     const sync = () => setDim({
@@ -70,6 +90,7 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
     const height = Math.max(0, Math.round((b.y2 - b.y1) * sy));
     return { left, top, width, height };
   };
+
   const strokeFor = (k: Box['kind']) => k === 'prediction' ? '#22c55e' : '#60a5fa';
   const labelPos = (r: { left: number; top: number; width: number; height: number }) => {
     const labelHeight = 16, pad = 2;
@@ -83,6 +104,7 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
 
   return (
     <div style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', background: 'rgba(0,0,0,0.25)' }}>
+      {/* Image */}
       <img
         ref={imgRef}
         src={src ?? ''}
@@ -90,7 +112,10 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
         style={{ width: '100%', display: 'block' }}
         onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
       />
+
+      {/* Overlays */}
       {boxes.map((b, i) => {
+        if (!visible[i]) return null;
         const r = toCssRect(b);
         const color = strokeFor(b.kind);
         const lbl = `${b.category}${typeof b.score === 'number' ? ` (${b.score.toFixed(3)})` : ''}`;
@@ -114,49 +139,64 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
           </div>
         );
       })}
+
+      {/* Simple toolbar for per-box visibility */}
+      {boxes.length > 0 && (
+        <div style={{
+          position: 'absolute', left: 8, top: 8,
+          display: 'flex', gap: 6, flexWrap: 'wrap',
+          background: 'rgba(0,0,0,0.45)', padding: '6px 8px', borderRadius: 6
+        }}>
+          {boxes.map((b, i) => (
+            <button
+              key={i}
+              onClick={() => setVisible(v => v.map((vv, j) => j === i ? !vv : vv))}
+              title={`${visible[i] ? 'Hide' : 'Show'} – ${b.kind === 'prediction' ? 'prediction' : 'annotation'}${b.category ? `: ${b.category}` : ''}`}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '4px 8px', borderRadius: 6,
+                color: '#eee',
+                background: visible[i] ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                cursor: 'pointer'
+              }}
+            >
+              {visible[i] ? <Eye size={14} /> : <EyeOff size={14} />}
+              <span style={{ fontSize: 11 }}>
+                {b.kind === 'prediction' ? 'pred' : 'ann'}
+                {b.category ? `:${b.category}` : ''}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-// -------------- Slider UI --------------
+/* ---------------- Slider panel with features ---------------- */
 export default function MultiPreviewPanel({ data, items }: Props) {
   const [idx, setIdx] = useState(0);
 
-  // keep index valid when items change
-  useEffect(() => {
-    if (idx > items.length - 1) setIdx(Math.max(0, items.length - 1));
-  }, [items.length, idx]);
+  useEffect(() => { if (idx > items.length - 1) setIdx(Math.max(0, items.length - 1)); }, [items.length, idx]);
 
   const hasItems = items.length > 0;
   const current = hasItems ? items[idx] : null;
   const total = items.length;
 
-  const go = (delta: number) => {
+  const go = (d: number) => {
     if (!hasItems) return;
     setIdx(i => {
-      const n = i + delta;
-      if (n < 0) return total - 1;        // wrap
-      if (n >= total) return 0;           // wrap
+      const n = i + d;
+      if (n < 0) return total - 1;
+      if (n >= total) return 0;
       return n;
     });
   };
 
-  // keyboard left/right
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (!hasItems) return;
-      if (e.key === 'ArrowRight') { e.preventDefault(); go(+1); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [hasItems, total]);
-
-  // swipe / drag support
+  // swipe / drag
   const dragRef = useRef<{ downX: number; active: boolean }>({ downX: 0, active: false });
-  const onPointerDown = (e: React.PointerEvent) => {
-    dragRef.current = { downX: e.clientX, active: true };
-  };
+  const onPointerDown = (e: React.PointerEvent) => { dragRef.current = { downX: e.clientX, active: true }; };
   const onPointerUp = (e: React.PointerEvent) => {
     if (!dragRef.current.active) return;
     const dx = e.clientX - dragRef.current.downX;
@@ -166,50 +206,33 @@ export default function MultiPreviewPanel({ data, items }: Props) {
     else if (dx < -THRESH) go(+1);
   };
 
+  // --- Features table helpers ---
+  const isNumber = (v: any) => typeof v === 'number' && Number.isFinite(v);
+  const formatNum = (v: number) =>
+    Math.abs(v) >= 1000 ? Math.round(v).toString()
+    : Math.abs(v) >= 10 ? v.toFixed(2)
+    : v.toFixed(3);
 
-  // --------- Features renderer ----------
   const FeaturesTable = ({ item }: { item: PositionItem }) => {
     const feats = item.features ?? {};
     const entries = Object.entries(feats);
     if (!entries.length) return <div style={{ opacity: 0.7 }}>No features present.</div>;
     return (
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: '140px 1fr',
-        gap: '6px 10px',
-        fontSize: 12,
-        background: 'rgba(255,255,255,0.06)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        padding: 10,
-        borderRadius: 8
+        display: 'grid', gridTemplateColumns: '140px 1fr', gap: '6px 10px',
+        fontSize: 12, background: 'rgba(255,255,255,0.06)',
+        border: '1px solid rgba(255,255,255,0.08)', padding: 10, borderRadius: 8
       }}>
         {entries.map(([k, v]) => (
-          <FragmentRow key={k} k={k} v={v} />
+          <React.Fragment key={k}>
+            <div style={{ opacity: 0.75 }}>{k}</div>
+            <div style={{ fontWeight: 600 }}>
+              {isNumber(v) ? formatNum(v as number) : typeof v === 'boolean' ? (v ? 'true' : 'false') : String(v ?? '')}
+            </div>
+          </React.Fragment>
         ))}
       </div>
     );
-  };
-
-  const FragmentRow = ({ k, v }: { k: string; v: any }) => {
-    const value =
-      isNumber(v) ? formatNum(v as number)
-        : typeof v === 'boolean' ? (v ? 'true' : 'false')
-          : String(v ?? '');
-    return (
-      <>
-        <div style={{ opacity: 0.75 }}>{k}</div>
-        <div style={{ fontWeight: 600 }}>{value}</div>
-      </>
-    );
-  };
-
-  // ---------- tiny helpers ----------
-  const isNumber = (v: any) => typeof v === 'number' && Number.isFinite(v);
-  const formatNum = (v: number) => {
-    // Use fewer decimals for large values, 3 decimals for small floats
-    if (Math.abs(v) >= 1000) return Math.round(v).toString();
-    if (Math.abs(v) >= 10) return v.toFixed(2);
-    return v.toFixed(3);
   };
 
   return (
@@ -224,18 +247,10 @@ export default function MultiPreviewPanel({ data, items }: Props) {
           Selected images {hasItems ? `(${idx + 1} / ${total})` : '(0)'}
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button
-            onClick={() => go(-1)}
-            disabled={!hasItems}
-            title="Prev (←)"
-            style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}
-          >◀</button>
-          <button
-            onClick={() => go(+1)}
-            disabled={!hasItems}
-            title="Next (→)"
-            style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}
-          >▶</button>
+          <button onClick={() => go(-1)} disabled={!hasItems} title="Prev (←)"
+            style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}>◀</button>
+          <button onClick={() => go(+1)} disabled={!hasItems} title="Next (→)"
+            style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}>▶</button>
         </div>
       </div>
 
@@ -245,49 +260,36 @@ export default function MultiPreviewPanel({ data, items }: Props) {
           Tip: Shift-drag on the plot to box-select multiple.
         </div>
       ) : (
-        <div
-          onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          style={{ display: 'grid', gap: 10 }}
-        >
+        <div onPointerDown={onPointerDown} onPointerUp={onPointerUp} style={{ display: 'grid', gap: 10 }}>
           <div style={{ fontWeight: 600 }}>
             #{current!.id} — {current!.metadata?.prediction?.category} · score {typeof current!.metadata?.prediction?.score === 'number' ? current!.metadata!.prediction!.score!.toFixed(3) : 'n/a'}
           </div>
 
-
-
-          {/* Quick jump mini-index if you like */}
           {total > 1 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
               {items.map((it, i) => (
-                <button
-                  key={it.id}
-                  onClick={() => setIdx(i)}
-                  title={`Go to ${i + 1}`}
+                <button key={it.id} onClick={() => setIdx(i)} title={`Go to ${i + 1}`}
                   style={{
                     width: 22, height: 22, borderRadius: 999,
                     border: '1px solid #444', background: i === idx ? '#60a5fa' : '#2a2a2a',
                     color: i === idx ? '#000' : '#bbb', fontSize: 11
-                  }}
-                >
+                  }}>
                   {i + 1}
                 </button>
               ))}
             </div>
           )}
 
-
           <BBoxOverlay item={current!} data={data} />
+
           <div style={{ fontSize: 11, opacity: 0.9 }}>
             <div><b>image</b>: {current!.metadata?.image_name}</div>
             <div><b>path</b>: <code style={{ fontSize: 11 }}>{current!.metadata?.image_path}</code></div>
             <div><b>bbox</b>: [{(current!.metadata?.prediction?.bbox ?? []).join(', ')}]</div>
           </div>
 
-          {/* NEW: Features */}
           <div style={{ fontWeight: 700, marginTop: 6 }}>Features</div>
           <FeaturesTable item={current!} />
-
         </div>
       )}
     </div>

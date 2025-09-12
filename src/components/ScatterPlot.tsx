@@ -40,6 +40,10 @@ const CAMERA_LERP = 0.22;
 const INERTIA_DECAY = 0.92;
 const PICK_R2 = 16 * 16;
 
+// NEW: anti-ghost-drag knobs
+const WHEEL_DEADZONE = 2;                 // px*dpr: ignore micro wheel noise
+const WHEEL_SUPPRESS_MS_AFTER_PAN = 140;  // ms: ignore tiny wheels right after pan end
+
 export default function ScatterPlot({
   positions, scheme, colorMode, pointSize, onHover, onSelect, setStatus,
   onBoxSelect, selectionShape = 'rect'
@@ -72,6 +76,9 @@ export default function ScatterPlot({
   const lastUiSyncRef = useRef(0);
   const rafRef = useRef<number | null>(null);
 
+  // NEW: remember when pan ended
+  const lastPanEndAtRef = useRef(0);
+
   const bounds = useMemo(() => {
     if (!positions.length) return { minX: -1, maxX: 1, minY: -1, maxY: 1 };
     const xs = positions.map(p => p.x), ys = positions.map(p => p.y);
@@ -85,6 +92,11 @@ export default function ScatterPlot({
   const screenToWorld = (sx: number, sy: number, w: number, h: number) => {
     const cx = w / 2, cy = h / 2;
     return [((sx - cx) - txRef.current) / scaleRef.current, -(((sy - cy) - tyRef.current) / scaleRef.current)] as const;
+  };
+
+  const cancelInertia = () => {
+    vxRef.current = 0;
+    vyRef.current = 0;
   };
 
   // size & initial fit
@@ -239,105 +251,71 @@ export default function ScatterPlot({
     };
     const clearMarquee = () => { const ctx = overlay.getContext('2d'); if (ctx) ctx.clearRect(0, 0, overlay.width, overlay.height); };
 
-    // ---- WHEEL: pan by default, zoom with ctrl/alt/meta (or enable mouse-wheel zoom heuristic below) ----
-    // const onWheel = (e: WheelEvent) => {
-    //   e.preventDefault();
-
-    //   const rect = canvas.getBoundingClientRect();
-    //   const dpr = window.devicePixelRatio || 1;
-
-    //   const toPx = (v: number) => (e.deltaMode === 1 ? v * 16 : v);
-    //   const dxPx = toPx(e.deltaX) * dpr;
-    //   const dyPx = toPx(e.deltaY) * dpr;
-
-    //   // Zoom when pinch (ctrl on macOS) or Alt/Meta pressed:
-    //   // If you also want plain mouse wheel to zoom, add the heuristic:
-    //   // const likelyMouseWheel = Math.abs(dxPx) < 0.5 && Math.abs(dyPx) >= 20;
-    //   // const doZoom = e.ctrlKey || e.altKey || e.metaKey || likelyMouseWheel;
-    //   const doZoom = e.ctrlKey || e.altKey || e.metaKey;
-
-    //   if (!doZoom) {
-    //     // --- PAN ---
-    //     const boost = Math.max(0.7, Math.min(2.0, 1.0 / Math.sqrt(targetScaleRef.current)));
-    //     targetTxRef.current -= dxPx * boost;
-    //     targetTyRef.current -= dyPx * boost;
-    //     requestFrame();
-    //     return;
-    //   }
-
-    //   // --- ZOOM around cursor ---
-    //   const mx = (e.clientX - rect.left) * dpr;
-    //   const my = (e.clientY - rect.top) * dpr;
-
-    //   const [wx, wy] = screenToWorld(mx, my, canvas.width, canvas.height);
-
-    //   const dy = Math.max(-0.5, Math.min(0.5, toPx(e.deltaY) / 500));
-    //   const factor = Math.exp(-dy);
-
-    //   const curScale = targetScaleRef.current;
-    //   const newScale = Math.max(0.05, Math.min(4000, curScale * factor));
-
-    //   const ds = newScale - curScale;
-    //   targetScaleRef.current = newScale;
-    //   targetTxRef.current -= wx * ds;
-    //   targetTyRef.current -= wy * ds;
-
-    //   requestFrame();
-    // };
-
-
+    // ---- WHEEL: mouse wheel zooms; trackpad two-finger scroll pans; pinch/Alt/Meta zoom too ----
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-    
-      const canvas = canvasRef.current!;
+
+      // stop any lingering inertia when a wheel gesture starts
+      cancelInertia();
+
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-    
+
       const toPx = (v: number) => (e.deltaMode === 1 ? v * 16 : v);
       const dxPx = toPx(e.deltaX) * dpr;
       const dyPx = toPx(e.deltaY) * dpr;
-    
-      // --- Decide PAN vs ZOOM ---
-      // Pinch (mac) or explicit keys still zoom:
+
+      // Dead-zone: ignore micro wheel noise
+      if (Math.abs(dxPx) < WHEEL_DEADZONE && Math.abs(dyPx) < WHEEL_DEADZONE) {
+        return;
+      }
+
+      // Right after a pan, suppress tiny wheels that feel like "drift"
+      const sincePan = performance.now() - lastPanEndAtRef.current;
+      if (sincePan >= 0 && sincePan < WHEEL_SUPPRESS_MS_AFTER_PAN &&
+          Math.abs(dxPx) < 10 && Math.abs(dyPx) < 10) {
+        return;
+      }
+
       const pinchZoom = e.ctrlKey;
       const explicitZoom = e.altKey || e.metaKey;
-      // Heuristic: a mouse wheel is usually vertical steps with ~0 horizontal.
       const likelyMouseWheel = !pinchZoom && !explicitZoom && Math.abs(dxPx) < 0.5 && Math.abs(dyPx) >= 1;
-    
+
       const doZoom = pinchZoom || explicitZoom || likelyMouseWheel;
-    
+
       if (!doZoom) {
-        // --- PAN (trackpad two-finger scroll) ---
+        // PAN (trackpad)
         const boost = Math.max(0.7, Math.min(2.0, 1.0 / Math.sqrt(targetScaleRef.current)));
         targetTxRef.current -= dxPx * boost;
         targetTyRef.current -= dyPx * boost;
         requestFrame();
         return;
       }
-    
-      // --- ZOOM (around cursor) ---
+
+      // ZOOM around cursor
       const mx = (e.clientX - rect.left) * dpr;
       const my = (e.clientY - rect.top) * dpr;
-    
+
       const [wx, wy] = screenToWorld(mx, my, canvas.width, canvas.height);
-    
-      // Adjust 500 to tune sensitivity; lower = faster zoom
-      const dy = Math.max(-0.5, Math.min(0.5, toPx(e.deltaY) / 500));
+
+      const dy = Math.max(-0.5, Math.min(0.5, toPx(e.deltaY) / 500)); // sensitivity
       const factor = Math.exp(-dy);
-    
+
       const curScale = targetScaleRef.current;
       const newScale = Math.max(0.05, Math.min(4000, curScale * factor));
-    
+
       const ds = newScale - curScale;
       targetScaleRef.current = newScale;
       targetTxRef.current -= wx * ds;
       targetTyRef.current -= wy * ds;
-    
+
       requestFrame();
     };
-    
 
     const onPointerDown = (e: PointerEvent) => {
+      // kill inertia on new gesture
+      cancelInertia();
+
       // marquee with Shift
       if (e.shiftKey) {
         const rect = canvas.getBoundingClientRect();
@@ -380,7 +358,6 @@ export default function ScatterPlot({
 
         requestFrame();
       } else {
-        // hover
         const mx = (e.clientX - rect.left) * dpr;
         const my = (e.clientY - rect.top) * dpr;
         let best = -1, bestD = PICK_R2;
@@ -422,6 +399,9 @@ export default function ScatterPlot({
       panning = false;
       (canvas.style as any).cursor = 'grab';
 
+      // remember pan end time to suppress tiny wheel drift
+      lastPanEndAtRef.current = performance.now();
+
       // inertia
       const stepInertia = () => {
         vxRef.current *= INERTIA_DECAY;
@@ -437,7 +417,6 @@ export default function ScatterPlot({
     };
 
     const onPointerLeave = () => {
-      // safety: end panning if pointer leaves canvas
       panning = false;
       (canvas.style as any).cursor = 'grab';
     };
