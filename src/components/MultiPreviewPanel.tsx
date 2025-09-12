@@ -14,22 +14,22 @@ type Box = {
   kind: 'prediction' | 'annotation';
 };
 
-// function getPreviewSrc(item: PositionItem | null): string | null {
-//   if (!item) return null;
-//   const p = item.metadata?.image_path || '';
-//   // if (p && /^https?:\/\//i.test(p)) return p;
-//   // return '/annotation-images/1.jpeg';
-//   return p;
-// }
-
-function getPreviewSrc(item) {
-  const p = item?.metadata?.image_path || '';
-  if (/^https?:\/\//i.test(p)) return p;
-  if (/^[A-Za-z]:[\\/]/.test(p) || p.startsWith('\\\\')) {
-    return `/img?path=${encodeURIComponent(p)}`; // your proxy
-  }
-  return p; // already a server path like /annotation-images/...
+function getPreviewSrc(item: PositionItem | null): string | null {
+  if (!item) return null;
+  // const p = item.metadata?.image_path || '';
+  // if (p && /^https?:\/\//i.test(p)) return p;
+  return '/annotation-images/1.jpeg';
+  // return p;
 }
+
+// function getPreviewSrc(item: PositionItem) {
+//   const p = item?.metadata?.image_path || '';
+//   if (/^https?:\/\//i.test(p)) return p;
+//   if (/^[A-Za-z]:[\\/]/.test(p) || p.startsWith('\\\\')) {
+//     return `/img?path=${encodeURIComponent(p)}`; // your proxy
+//   }
+//   return p; // already a server path like /annotation-images/...
+// }
 
 
 /* ---------------- BBox overlay with per-box eye toggles ---------------- */

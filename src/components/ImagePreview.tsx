@@ -25,7 +25,7 @@ function getPreviewSrc(active: PositionItem | null): string | null {
   return '/annotation-images/1.jpeg';
 }
 
-export default function ImagePreview({ data, active, scheme }: Props) {
+export default function ImagePreview({ data, active }: Props) {
   if (!active) return null;
 
   const previewSrc = getPreviewSrc(active);
