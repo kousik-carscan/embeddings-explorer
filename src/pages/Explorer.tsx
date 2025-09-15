@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useData } from '../hooks/useData';
 import Controls from '../components/Controls';
 import FileUploader from '../components/FileUploader';
@@ -6,9 +6,12 @@ import ScatterPlot from '../components/ScatterPlot';
 import MultiPreviewPanel from '../components/MultiPreviewPanel';
 import type { PositionItem } from '../types';
 import ColorLegend from '../components/ColorLegend';
+import { useAuth } from '../auth';
 
 export default function Explorer() {
-  const { data, source, loadFromFile } = useData(null);
+  // Streaming-aware hook (small JSON -> loadFromFile, huge NDJSON -> loadFromFileStream)
+  const { data, source, status: loadStatus, loadFromFile, loadFromFileStream } = useData(null);
+  const { logout } = useAuth();
 
   // -----------------------------
   // 0) Base positions
@@ -34,15 +37,15 @@ export default function Explorer() {
   const positionsWithVirtual = useMemo<PositionItem[]>(() => {
     if (!positions.length) return positions;
     return positions.map((p) => {
-      const cat  = p.metadata?.prediction?.category;
-      const ds   = (p as any)?.features?.data_split;
-      const et   = (p as any)?.features?.eval_type;
+      const cat = p.metadata?.prediction?.category;
+      const ds = (p as any)?.features?.data_split;
+      const et = (p as any)?.features?.eval_type;
       const refl = (p as any)?.features?.reflection;
 
       const extra: Record<string, any> = {};
-      extra['__cat:category']    = cat ?? null;
-      extra['__feat:data_split'] = ds  ?? null;
-      extra['__feat:eval_type']  = et  ?? null;
+      extra['__cat:category'] = cat ?? null;
+      extra['__feat:data_split'] = ds ?? null;
+      extra['__feat:eval_type'] = et ?? null;
       extra['__feat:reflection'] = typeof refl === 'boolean' ? String(refl) : (refl ?? null);
 
       return {
@@ -70,7 +73,9 @@ export default function Explorer() {
   const [scheme, setScheme] = useState<string>(clusterKeys[0] ?? 'dbscan');
   const [colorMode, setColorMode] = useState<'cluster' | 'score'>(clusterKeys.length ? 'cluster' : 'score');
   const [pointSize, setPointSize] = useState(3);
-  const [status, setStatus] = useState<string>('');
+
+  // Status coming from renderer (draw time / point count)
+  const [drawStatus, setDrawStatus] = useState<string>('');
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   // Multi-select
@@ -81,6 +86,7 @@ export default function Explorer() {
   React.useEffect(() => {
     if (!clusterKeys.length) { setScheme('dbscan'); setColorMode('score'); return; }
     if (!clusterKeys.includes(scheme)) setScheme(clusterKeys[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clusterKeys.join('|')]);
 
   // -----------------------------
@@ -204,17 +210,30 @@ export default function Explorer() {
         scheme={scheme} setScheme={setScheme}
         colorMode={colorMode} setColorMode={setColorMode}
         pointSize={pointSize} setPointSize={setPointSize}
-        status={`${status}${source ? ` · source: ${source}` : ''}`}
+        status={`${loadStatus}${drawStatus ? ` · ${drawStatus}` : ''}${source ? ` · source: ${source}` : ''}`}
         disabledCluster={!clusterKeys.length}
         extra={(
           <div style={{ display: 'grid', gap: 8 }}>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <FileUploader onFile={loadFromFile} />
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <FileUploader onFile={loadFromFile} onFileStream={loadFromFileStream} />
               <button
                 onClick={() => setSelectedIdx([])}
                 style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}
               >
                 Clear selection
+              </button>
+              <button
+                onClick={logout}
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  background: '#7f1d1d',
+                  color: '#fff',
+                  border: '1px solid #b91c1c'
+                }}
+                title="Sign out and return to login"
+              >
+                Logout
               </button>
             </div>
 
@@ -251,7 +270,7 @@ export default function Explorer() {
         scheme={scheme}
         colorMode={colorMode}
         pointSize={pointSize}
-        setStatus={setStatus}
+        setStatus={setDrawStatus}
         onHover={(i) => setHoverIdx(i)}
         onSelect={handleSelect}
         onBoxSelect={handleBoxSelect}

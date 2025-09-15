@@ -14,28 +14,35 @@ type Box = {
   kind: 'prediction' | 'annotation';
 };
 
-function getPreviewSrc(item: PositionItem | null): string | null {
-  if (!item) return null;
-  // const p = item.metadata?.image_path || '';
-  // if (p && /^https?:\/\//i.test(p)) return p;
-  return '/annotation-images/1.jpeg';
-  // return p;
+// --- tiny helper: call your presign API ---
+async function fetchPresignedUrl(imageId: string | number, token: string): Promise<string> {
+  const url = `https://aicdb.carscan.ai/aicdb/imagesdata/${imageId}/presign_url`;
+  // const resp = await fetch(url, {
+  //   headers: {
+  //     accept: 'application/json',
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // });
+  // if (!resp.ok) {
+  // const msg = await resp.text().catch(() => '');
+  // throw new Error(`Presign failed (${resp.status}): ${msg || resp.statusText}`);
+  // }
+  // const data = await resp.json();
+  const data = { "success": true, "url": "https://core-s3.staging.carscan.ai/staging-carscan-core-general-files/fb91f0b0-7755-4eef-9dbd-7831396421f9/94f53c2a-4f0a-4bb7-825e-ad9029ee1dd3/original/a0ea4844-f2cf-4fdd-a503-86b89d6d77c4.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX2tleSI6ImZiOTFmMGIwLTc3NTUtNGVlZi05ZGJkLTc4MzEzOTY0MjFmOVwvOTRmNTNjMmEtNGYwYS00YmI3LTgyNWUtYWQ5MDI5ZWUxZGQzIiwiZXhwIjoxNzU3OTIyNTA3LCJqdGkiOiI2OTIzZjFmOC02YTU5LTQ5ZTgtOTNlOC1hZTk2NmIyMzYyMGUifQ.og74KKoib5VaUcSX1UlQewFy-lKLCxfVTF2k1U45SYs"}
+  if (!data?.url) throw new Error('No presigned url in response');
+  return String(data.url);
 }
 
-// function getPreviewSrc(item: PositionItem) {
-//   const p = item?.metadata?.image_path || '';
-//   if (/^https?:\/\//i.test(p)) return p;
-//   if (/^[A-Za-z]:[\\/]/.test(p) || p.startsWith('\\\\')) {
-//     return `/img?path=${encodeURIComponent(p)}`; // your proxy
-//   }
-//   return p; // already a server path like /annotation-images/...
-// }
-
-
-/* ---------------- BBox overlay with per-box eye toggles ---------------- */
+/* ---------------- BBox overlay with per-box eye toggles + presigned fetch ---------------- */
 function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null }) {
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [dim, setDim] = useState({ w: 0, h: 0, naturalW: 0, naturalH: 0 });
+
+  // Presigned/image src state
+  const [src, setSrc] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const cacheRef = useRef<Map<string | number, string>>(new Map());
 
   // Build boxes array: prediction + all annotations for the same image_id
   const boxes = useMemo<Box[]>(() => {
@@ -68,6 +75,62 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
     setVisible(new Array(boxes.length).fill(true));
   }, [boxes.length, item?.id]);
 
+  // Decide/resolve image src
+  useEffect(() => {
+    let cancelled = false;
+
+    async function resolveSrc() {
+      setErr(null);
+      const rawPath = item?.metadata?.image_path || '';
+      const imageId = item?.metadata?.image_id;
+
+      // If already a full http(s) URL, use it as-is
+      if (/^https?:\/\//i.test(rawPath)) {
+        setSrc(rawPath);
+        return;
+      }
+
+      // If we already cached a URL for this image_id, reuse it
+      if (imageId != null && cacheRef.current.has(imageId)) {
+        setSrc(cacheRef.current.get(imageId)!);
+        return;
+      }
+
+      // Otherwise fetch presigned url (needs token in localStorage)
+      if (imageId == null) {
+        setErr('No image_id found for presign');
+        setSrc(null);
+        return;
+      }
+
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setErr('Not authenticated. Please login first.');
+        setSrc(null);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const url = await fetchPresignedUrl(imageId, token);
+        if (!cancelled) {
+          cacheRef.current.set(imageId, url);
+          setSrc(url);
+        }
+      } catch (e: any) {
+        if (!cancelled) {
+          setErr(e?.message ?? 'Failed to get image URL');
+          setSrc(null);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    resolveSrc();
+    return () => { cancelled = true; };
+  }, [item?.metadata?.image_id, item?.metadata?.image_path]);
+
   // Image sizing for overlay scaling
   useEffect(() => {
     const el = imgRef.current; if (!el) return;
@@ -79,7 +142,7 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
     const ro = new ResizeObserver(sync);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [getPreviewSrc(item)]);
+  }, [src]);
 
   const toCssRect = (b: Box) => {
     const { w, h, naturalW, naturalH } = dim;
@@ -100,21 +163,49 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
       : { left: r.left + pad, top: r.top + pad, inside: true };
   };
 
-  const src = getPreviewSrc(item);
-
   return (
     <div style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', background: 'rgba(0,0,0,0.25)' }}>
+      {/* Loading / Error layers */}
+      {loading && (
+        <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', zIndex: 1, background: 'rgba(0,0,0,0.25)' }}>
+          <div style={{ fontSize: 12, opacity: 0.9 }}>Loading image…</div>
+        </div>
+      )}
+      {err && (
+        <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', zIndex: 1, background: 'rgba(0,0,0,0.35)', color: '#fda4af' }}>
+          <div style={{ fontSize: 12, textAlign: 'center' }}>
+            {err}<br /><span style={{ opacity: 0.75 }}>Check login / token</span>
+          </div>
+        </div>
+      )}
+
       {/* Image */}
+      {/* <img
+        ref={imgRef}
+        src={src ?? ''}
+        alt={item.metadata?.image_name ?? 'preview'}
+        style={{ width: '100%', display: src ? 'block' : 'none' }}
+        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+      /> */}
+
+
       <img
         ref={imgRef}
         src={src ?? ''}
         alt={item.metadata?.image_name ?? 'preview'}
-        style={{ width: '100%', display: 'block' }}
-        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+        referrerPolicy="no-referrer"
+        style={{ width: '100%', display: src ? 'block' : 'none' }}
+        onError={() => setErr('Image failed to load (likely bad Content-Type or expired presign)')}
       />
+      {err && (
+        <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: 'rgba(0,0,0,0.35)', color: '#fda4af' }}>
+          <div style={{ fontSize: 12, textAlign: 'center' }}>{err}</div>
+        </div>
+      )}
+
 
       {/* Overlays */}
-      {boxes.map((b, i) => {
+      {src && boxes.map((b, i) => {
         if (!visible[i]) return null;
         const r = toCssRect(b);
         const color = strokeFor(b.kind);
@@ -174,7 +265,7 @@ function BBoxOverlay({ item, data }: { item: PositionItem; data: Dataset | null 
   );
 }
 
-/* ---------------- Slider panel with features ---------------- */
+/* ---------------- Slider panel with features + EXPORT ---------------- */
 export default function MultiPreviewPanel({ data, items }: Props) {
   const [idx, setIdx] = useState(0);
 
@@ -206,12 +297,55 @@ export default function MultiPreviewPanel({ data, items }: Props) {
     else if (dx < -THRESH) go(+1);
   };
 
+  // --- EXPORT helpers (per current item) ---
+  const getAnnotations = (item: PositionItem) =>
+    (data?.annotations?.[String(item.metadata?.image_id)] ?? []);
+
+  const makePayload = (item: PositionItem) => ({
+    id: item.id,
+    x: item.x, y: item.y,
+    cluster_labels: item.cluster_labels ?? {},
+    metadata: item.metadata ?? {},
+    features: item.features ?? {},
+    annotations: getAnnotations(item),
+  });
+
+  const downloadJSON = (obj: any, filename: string) => {
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportCurrent = () => {
+    if (!current) return;
+    const payload = makePayload(current);
+    const base = current.metadata?.image_name || `image_${current.id}`;
+    downloadJSON(payload, `${base.replace(/\s+/g, '_')}.json`);
+  };
+
+  const copyCurrent = async () => {
+    if (!current) return;
+    const payload = makePayload(current);
+    const text = JSON.stringify(payload, null, 2);
+    try {
+      await navigator.clipboard.writeText(text);
+      alert('Copied JSON to clipboard');
+    } catch {
+      alert('Clipboard unavailable. Try Export JSON to download the file.');
+    }
+  };
+
   // --- Features table helpers ---
   const isNumber = (v: any) => typeof v === 'number' && Number.isFinite(v);
   const formatNum = (v: number) =>
     Math.abs(v) >= 1000 ? Math.round(v).toString()
-    : Math.abs(v) >= 10 ? v.toFixed(2)
-    : v.toFixed(3);
+      : Math.abs(v) >= 10 ? v.toFixed(2)
+        : v.toFixed(3);
 
   const FeaturesTable = ({ item }: { item: PositionItem }) => {
     const feats = item.features ?? {};
@@ -261,8 +395,23 @@ export default function MultiPreviewPanel({ data, items }: Props) {
         </div>
       ) : (
         <div onPointerDown={onPointerDown} onPointerUp={onPointerUp} style={{ display: 'grid', gap: 10 }}>
-          <div style={{ fontWeight: 600 }}>
-            #{current!.id} — {current!.metadata?.prediction?.category} · score {typeof current!.metadata?.prediction?.score === 'number' ? current!.metadata!.prediction!.score!.toFixed(3) : 'n/a'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontWeight: 600, flex: 1 }}>
+              #{current!.id} — {current!.metadata?.prediction?.category} · score {typeof current!.metadata?.prediction?.score === 'number' ? current!.metadata!.prediction!.score!.toFixed(3) : 'n/a'}
+            </div>
+            {/* Export controls for THIS image */}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                onClick={exportCurrent}
+                title="Export this image's JSON"
+                style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}
+              >Export JSON</button>
+              <button
+                onClick={copyCurrent}
+                title="Copy JSON to clipboard"
+                style={{ padding: '6px 10px', borderRadius: 6, background: '#2a2a2a', color: '#eee', border: '1px solid #444' }}
+              >Copy</button>
+            </div>
           </div>
 
           {total > 1 && (

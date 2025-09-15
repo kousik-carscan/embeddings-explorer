@@ -737,10 +737,10 @@
                     "category":"dent",
                     "score":0.39524877071380615,
                     "bbox":[
-                        648,
-                        588,
-                        672,
-                        610
+                        10,
+                        10,
+                        10,
+                        10
                     ]
                 }
             },
@@ -1506,7 +1506,7 @@
             "metadata":{
                 "image_id":4935574,
                 "image_name":"1.jpeg",
-                "image_path":"/annotation-images/1.jpeg",
+                "image_path":"https://fastly.picsum.photos/id/976/200/200.jpg?hmac=xz9CTpScnLHQm_wNTcJmz8bQM6-ApTQnof5-4LGtu-s",
                 "assessment_uuid":"a9551387-41db-4e86-bf23-e79c9ae698af",
                 "prediction":{
                     "pred_id":353959,

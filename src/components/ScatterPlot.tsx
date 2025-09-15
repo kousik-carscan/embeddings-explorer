@@ -79,11 +79,40 @@ export default function ScatterPlot({
   // NEW: remember when pan ended
   const lastPanEndAtRef = useRef(0);
 
+  // const bounds = useMemo(() => {
+  //   if (!positions.length) return { minX: -1, maxX: 1, minY: -1, maxY: 1 };
+  //   const xs = positions.map(p => p.x), ys = positions.map(p => p.y);
+  //   return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+  // }, [positions]);
+
+  // Replace your current bounds useMemo with this:
   const bounds = useMemo(() => {
     if (!positions.length) return { minX: -1, maxX: 1, minY: -1, maxY: 1 };
-    const xs = positions.map(p => p.x), ys = positions.map(p => p.y);
-    return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+    // Single pass; no spreads
+    for (let i = 0; i < positions.length; i++) {
+      const p = positions[i];
+      const x = p.x;
+      const y = p.y;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+
+    // Fallback if anything was NaN/undefined
+    if (!Number.isFinite(minX) || !Number.isFinite(maxX) || !Number.isFinite(minY) || !Number.isFinite(maxY)) {
+      return { minX: -1, maxX: 1, minY: -1, maxY: 1 };
+    }
+    // Avoid zero span to prevent div-by-zero during fit
+    if (minX === maxX) { minX -= 1; maxX += 1; }
+    if (minY === maxY) { minY -= 1; maxY += 1; }
+
+    return { minX, maxX, minY, maxY };
   }, [positions]);
+
 
   const worldToScreen = (x: number, y: number, w: number, h: number) => {
     const cx = w / 2, cy = h / 2;
@@ -273,7 +302,7 @@ export default function ScatterPlot({
       // Right after a pan, suppress tiny wheels that feel like "drift"
       const sincePan = performance.now() - lastPanEndAtRef.current;
       if (sincePan >= 0 && sincePan < WHEEL_SUPPRESS_MS_AFTER_PAN &&
-          Math.abs(dxPx) < 10 && Math.abs(dyPx) < 10) {
+        Math.abs(dxPx) < 10 && Math.abs(dyPx) < 10) {
         return;
       }
 
@@ -329,7 +358,7 @@ export default function ScatterPlot({
       panning = true; moved = false;
       lastX = e.clientX; lastY = e.clientY;
       vxRef.current = 0; vyRef.current = 0;
-      try { canvas.setPointerCapture(e.pointerId); } catch {}
+      try { canvas.setPointerCapture(e.pointerId); } catch { }
       (canvas.style as any).cursor = 'grabbing';
     };
 

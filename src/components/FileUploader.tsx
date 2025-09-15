@@ -1,11 +1,11 @@
-// import React, { useRef, useState } from 'react';
 import { useRef, useState } from 'react';
 
 type Props = {
   onFile: (file: File) => Promise<void> | void;
+  onFileStream?: (file: File) => Promise<void> | void; // NEW
 };
 
-export default function FileUploader({ onFile }: Props) {
+export default function FileUploader({ onFile, onFileStream }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -21,24 +21,28 @@ export default function FileUploader({ onFile }: Props) {
       onDrop={(e) => {
         e.preventDefault(); setDragOver(false);
         const f = e.dataTransfer?.files?.[0];
-        if (f) onFile(f);
+        if (!f) return;
+        if (/\.(ndjson|jsonl)$/i.test(f.name)) onFileStream?.(f);
+        else onFile(f);
       }}
     >
-      <button
-        onClick={() => inputRef.current?.click()}
-        style={{ padding: '4px 8px', borderRadius: 6 }}
-      >
-        Upload JSON
+      <button onClick={() => inputRef.current?.click()} style={{ padding: '4px 8px', borderRadius: 6 }}>
+        Upload JSON / NDJSON
       </button>
       <input
         ref={inputRef}
         type="file"
-        accept="application/json,.json"
+        accept="application/json,.json,.ndjson,.jsonl"
         style={{ display: 'none' }}
-        onChange={(e) => { const f = e.currentTarget.files?.[0]; if (f) onFile(f); }}
+        onChange={(e) => {
+          const f = e.currentTarget.files?.[0];
+          if (!f) return;
+          if (/\.(ndjson|jsonl)$/i.test(f.name)) onFileStream?.(f);
+          else onFile(f);
+        }}
       />
       <div style={{ fontSize: 11, opacity: 0.8, marginTop: 6 }}>
-        Tip: drag & drop a <code>.json</code> file here, or place one at <code>/public/data.json</code>.
+        Tip: use <code>.ndjson</code>/<code>.jsonl</code> for large datasets (streams in batches).
       </div>
     </div>
   );
