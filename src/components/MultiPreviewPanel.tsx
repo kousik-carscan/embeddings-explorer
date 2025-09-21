@@ -17,18 +17,20 @@ type Box = {
 // --- tiny helper: call your presign API ---
 async function fetchPresignedUrl(imageId: string | number, token: string): Promise<string> {
   const url = `https://aicdb.carscan.ai/aicdb/imagesdata/${imageId}/presign_url`;
-  // const resp = await fetch(url, {
-  //   headers: {
-  //     accept: 'application/json',
-  //     Authorization: `Bearer ${token}`,
-  //   },
-  // });
-  // if (!resp.ok) {
-  // const msg = await resp.text().catch(() => '');
-  // throw new Error(`Presign failed (${resp.status}): ${msg || resp.statusText}`);
-  // }
-  // const data = await resp.json();
-  const data = { "success": true, "url": "https://core-s3.staging.carscan.ai/staging-carscan-core-general-files/fb91f0b0-7755-4eef-9dbd-7831396421f9/94f53c2a-4f0a-4bb7-825e-ad9029ee1dd3/original/a0ea4844-f2cf-4fdd-a503-86b89d6d77c4.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX2tleSI6ImZiOTFmMGIwLTc3NTUtNGVlZi05ZGJkLTc4MzEzOTY0MjFmOVwvOTRmNTNjMmEtNGYwYS00YmI3LTgyNWUtYWQ5MDI5ZWUxZGQzIiwiZXhwIjoxNzU3OTIyNTA3LCJqdGkiOiI2OTIzZjFmOC02YTU5LTQ5ZTgtOTNlOC1hZTk2NmIyMzYyMGUifQ.og74KKoib5VaUcSX1UlQewFy-lKLCxfVTF2k1U45SYs"}
+  // const url = `https://4be6cdff32cb.ngrok-free.app/aicdb/imagesdata/${imageId}/presign_url`;
+  const resp = await fetch(url, {
+    headers: {
+      accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+      // 'ngrok-skip-browser-warning': '69420'
+    },
+  });
+  if (!resp.ok) {
+    const msg = await resp.text().catch(() => '');
+    throw new Error(`Presign failed (${resp.status}): ${msg || resp.statusText}`);
+  }
+  const data = await resp.json();
+  // const data = { "success": true, "url": "https://core-s3.staging.carscan.ai/staging-carscan-core-general-files/fb91f0b0-7755-4eef-9dbd-7831396421f9/94f53c2a-4f0a-4bb7-825e-ad9029ee1dd3/original/a0ea4844-f2cf-4fdd-a503-86b89d6d77c4.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX2tleSI6ImZiOTFmMGIwLTc3NTUtNGVlZi05ZGJkLTc4MzEzOTY0MjFmOVwvOTRmNTNjMmEtNGYwYS00YmI3LTgyNWUtYWQ5MDI5ZWUxZGQzIiwiZXhwIjoxNzU3OTIyNTA3LCJqdGkiOiI2OTIzZjFmOC02YTU5LTQ5ZTgtOTNlOC1hZTk2NmIyMzYyMGUifQ.og74KKoib5VaUcSX1UlQewFy-lKLCxfVTF2k1U45SYs"}
   if (!data?.url) throw new Error('No presigned url in response');
   return String(data.url);
 }

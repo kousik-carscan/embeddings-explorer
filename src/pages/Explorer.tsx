@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useData } from '../hooks/useData';
 import Controls from '../components/Controls';
 import FileUploader from '../components/FileUploader';
